@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Rocket } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
@@ -28,7 +29,9 @@ export const Hero: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-4">
               <Link href="#services">
-                <Button size="lg">Let&apos;s Get Started 🚀</Button>
+                <Button size="lg">
+                  Let&apos;s Get Started <Rocket className="ml-2 h-4 w-4" />
+                </Button>
               </Link>
               <Link href="#services">
                 <button className="inline-flex items-center justify-center px-6 h-14 rounded-full border-2 border-[#205781] text-[#205781] font-semibold text-base hover:bg-[#E0EFF5] transition-colors">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { HeartIcon } from 'lucide-react';
 
 interface StatCardProps {
   value: string;
@@ -48,7 +49,7 @@ const testimonials: TestimonialCardProps[] = [
   {
     quote: "I went from 'Where does my money go?' to actually having a system. Aditya makes finance feel like a conversation with a smart friend.",
     name: 'Sarah K.',
-    role: 'Marketing Manager',
+    role: 'Freelancer',
     initials: 'SK',
   },
   {
@@ -70,7 +71,11 @@ export const SocialProof: React.FC = () => {
     <section id="about" className="bg-[#F0F7FA] py-20">
       <div className="mx-auto w-full max-w-screen-xl px-5 sm:px-10 lg:px-20 flex flex-col gap-12">
         <SectionHeader
-          badge="💛 Real People, Real Results"
+          badge={<span className="inline-flex items-center gap-2">
+            <HeartIcon size={16} />
+            Real People, Real Results
+          </span>}
+          badgeVariant="light"
           title={
             <span className="text-[#1A1918]">
               They said nice things<br />(I didn&apos;t even bribe them)

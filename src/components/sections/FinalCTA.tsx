@@ -1,3 +1,4 @@
+import { Rocket, RocketIcon } from 'lucide-react';
 import React from 'react';
 
 export const FinalCTA: React.FC = () => {
@@ -9,8 +10,8 @@ export const FinalCTA: React.FC = () => {
       }}
     >
       <div className="mx-auto w-full max-w-screen-xl flex flex-col items-center gap-6 text-center">
-        <span className="text-[48px]">🚀</span>
-
+        <RocketIcon className='text-white' size="4em"/>
+        
         <h2 className="text-[44px] font-extrabold text-white leading-[1.1] tracking-[-1.2px] max-w-[640px]">
           Ready to finally<br />feel in control of your money?
         </h2>

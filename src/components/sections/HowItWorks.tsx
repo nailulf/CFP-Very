@@ -1,5 +1,6 @@
 import React from 'react';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Lightbulb } from 'lucide-react';
 
 interface StepCardProps {
   number: string;
@@ -32,18 +33,18 @@ const steps: StepCardProps[] = [
     number: '1',
     numberBg: '#205781',
     title: 'Book a free\ndiscovery call',
-    description: 'Tell me about your money situation (no judgment, I promise 🙏)',
+    description: 'Tell me about your money situation (no judgment, I promise)',
   },
   {
     number: '2',
     numberBg: '#4F9DA6',
     title: 'Get your custom\ngame plan',
-    description: "I'll create a plan that fits YOUR life, not some cookie-cutter template 🍪❌",
+    description: "I'll create a plan that fits YOUR life, not some cookie-cutter template",
   },
   {
     number: '3',
     numberBg: '#8AD6C1',
-    title: 'Take control of\nyour money 💪',
+    title: 'Take control of\nyour money',
     description: "Execute with confidence. I'll be right there cheering you on every step of the way!",
   },
 ];
@@ -53,7 +54,12 @@ export const HowItWorks: React.FC = () => {
     <section id="how-it-works" className="bg-[#153A56] py-20">
       <div className="mx-auto w-full max-w-screen-xl px-5 sm:px-10 lg:px-20 flex flex-col gap-12">
         <SectionHeader
-          badge="💡 Super Simple"
+          badge={
+            <span className="inline-flex items-center gap-2">
+              <Lightbulb size={16} />
+              Super Simple
+            </span>
+          }
           badgeVariant="dark"
           title={
             <span className="text-white">
