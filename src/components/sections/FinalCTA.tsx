@@ -1,4 +1,4 @@
-import { Rocket, RocketIcon } from 'lucide-react';
+import { RocketIcon } from 'lucide-react';
 import React from 'react';
 
 export const FinalCTA: React.FC = () => {

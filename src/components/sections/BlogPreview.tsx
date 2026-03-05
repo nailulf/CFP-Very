@@ -1,9 +1,5 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
 import { ArrowRight, Calendar, User } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
@@ -56,13 +52,9 @@ export const BlogPreview = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {blogPosts.map((post, index) => (
-            <motion.article
+          {blogPosts.map((post) => (
+            <article
               key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
               className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group"
             >
               <div className="relative h-48 overflow-hidden">
@@ -99,7 +91,7 @@ export const BlogPreview = () => {
                   Baca Selengkapnya <ArrowRight size={16} className="ml-1" />
                 </Link>
               </div>
-            </motion.article>
+            </article>
           ))}
         </div>
 

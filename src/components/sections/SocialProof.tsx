@@ -40,29 +40,29 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, role, in
 );
 
 const stats: StatCardProps[] = [
-  { value: '500+', label: 'Happy Clients', valueColor: '#205781' },
-  { value: 'Rp 2B+', label: 'Money Organized', valueColor: '#4F9DA6' },
+  { value: '+++', label: 'Happy Clients', valueColor: '#205781' },
+  { value: 'Rp 5B+', label: 'Money Organized', valueColor: '#4F9DA6' },
   { value: '4.9⭐', label: 'Average Rating', valueColor: '#8AD6C1' },
 ];
 
 const testimonials: TestimonialCardProps[] = [
   {
     quote: "I went from 'Where does my money go?' to actually having a system. Aditya makes finance feel like a conversation with a smart friend.",
-    name: 'Sarah K.',
-    role: 'Freelancer',
-    initials: 'SK',
+    name: 'Berlian K.',
+    role: 'Working Mom',
+    initials: 'BK',
   },
   {
     quote: 'The group session was SO fun! I learned more in 2 hours than months of reading finance blogs. Plus, Aditya\'s energy is contagious.',
-    name: 'Budi R.',
-    role: 'Startup Founder',
-    initials: 'BR',
+    name: 'Angel.',
+    role: 'Corporate Legal',
+    initials: 'AR',
   },
   {
     quote: "The digital planner paid for itself in week one. I finally have a system that works and doesn't make me want to cry. 10/10.",
-    name: 'Maya L.',
-    role: 'Freelance Designer',
-    initials: 'ML',
+    name: 'Bintang R.',
+    role: 'Finance Manager',
+    initials: 'BR',
   },
 ];
 
