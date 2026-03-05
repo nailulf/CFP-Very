@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aditya Very Cleverina - Certified Financial Planner
+
+Professional landing page for Aditya Very Cleverina, a Certified Financial Planner (CFP®). This project is built with Next.js 14, Tailwind CSS, and Supabase.
+
+## Features
+
+- **Responsive Design**: Optimized for mobile, tablet, and desktop.
+- **Services Showcase**: Detailed descriptions of financial consultation, mentoring, and comprehensive planning.
+- **Blog Platform**: Educational content with search and filtering capabilities.
+- **Contact & Scheduling**: Integrated contact form and call-to-action for consultations.
+- **Supabase Integration**: Backend support for contact messages and newsletter subscriptions.
+- **Modern UI/UX**: Clean, professional aesthetic using Tailwind CSS and Framer Motion animations.
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **Backend**: Supabase
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+1.  **Clone the repository:**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    ```bash
+    git clone <repository-url>
+    cd cfp-landing-page
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2.  **Install dependencies:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    ```bash
+    npm install
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3.  **Set up environment variables:**
 
-## Learn More
+    Create a `.env.local` file in the root directory and add your Supabase credentials:
 
-To learn more about Next.js, take a look at the following resources:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4.  **Run the development server:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```bash
+    npm run dev
+    ```
 
-## Deploy on Vercel
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app`: App router pages and layouts
+- `src/components`: Reusable UI components and page sections
+- `src/lib`: Utility functions and Supabase client
+- `src/types`: TypeScript interfaces
+- `supabase`: Database migrations
+
+## License
+
+[MIT](LICENSE)
