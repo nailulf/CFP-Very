@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-outfit);
+
+  --color-primary: #205781;
+  --color-teal: #4F9DA6;
+  --color-mint: #8AD6C1;
+  --color-light-blue: #E0EFF5;
+  --color-dark: #1A1918;
+  --color-muted: #6D6C6A;
+  --color-subtle: #9C9B99;
+  --color-navy: #153A56;
+  --color-navy-card: #1A3A50;
+  --color-page-bg: #F0F7FA;
+  --color-gold: #D4A64A;
+}
+
+@layer base {
+  body {
+    @apply bg-page-bg text-dark;
+  }
+}
