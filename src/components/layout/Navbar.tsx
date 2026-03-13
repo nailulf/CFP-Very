@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -19,8 +20,16 @@ export const Navbar: React.FC = () => {
       <div className="mx-auto w-full max-w-screen-xl px-5 sm:px-10 lg:px-20">
         <div className="flex items-center justify-between h-[72px]">
           {/* Logo */}
-          <Link href="/" className="text-[20px] font-bold text-[#1A1918] tracking-[-0.5px]">
-            Aditya Very Cleverina
+          <Link href="/" className="inline-flex items-center gap-3 text-[20px] font-bold text-[#1A1918] tracking-[-0.5px]">
+            <Image
+              src="/icon_1.png"
+              alt="Aditya Very Cleverina logo"
+              width={192}
+              height={192}
+              className="w-9 h-9 rounded-md object-cover"
+              priority
+            />
+            <span>Aditya Very Cleverina</span>
           </Link>
 
           {/* Desktop Nav */}

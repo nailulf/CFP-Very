@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Rocket } from 'lucide-react';
+import { span } from 'framer-motion/client';
 
 export const Hero: React.FC = () => {
   return (
