@@ -68,6 +68,10 @@ export default function Home() {
 
             {/* Image */}
             <div className="relative flex-shrink-0 w-full max-w-[480px]">
+               <div className="absolute bottom-6 left-6 bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg transform translate-x-[-20%] z-10">
+                <h3 className="text-lg font-bold text-[#1A1918]">Very Cleverina, CFP®</h3>
+                <p className="text-sm text-[#6D6C6A]">Certified Financial Planner, Ex-Central Banker</p>
+              </div>
               <div className="relative w-full h-[520px] rounded-3xl overflow-hidden bg-[#E0EFF5]">
                 <Image
                   src="/images/hero.png"

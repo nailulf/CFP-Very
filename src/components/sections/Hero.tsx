@@ -47,9 +47,11 @@ export const Hero: React.FC = () => {
               <span className="text-[13px] font-medium text-[#9C9B99]">4.9/5 rating</span>
             </div>
           </div>
+          
 
           {/* Image Side */}
           <div className="relative flex-shrink-0 w-full max-w-[480px]">
+
             <div className="relative w-full h-[520px] rounded-3xl overflow-hidden bg-[#E0EFF5]">
               <Image
                 src="/images/hero.png"
@@ -59,6 +61,7 @@ export const Hero: React.FC = () => {
                 className="object-cover"
                 priority
               />
+              
             </div>
           </div>
         </div>

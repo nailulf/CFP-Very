@@ -23,13 +23,16 @@ export const Navbar: React.FC = () => {
           <Link href="/" className="inline-flex items-center gap-3 text-[20px] font-bold text-[#1A1918] tracking-[-0.5px]">
             <Image
               src="/icon_1.png"
-              alt="Aditya Very Cleverina logo"
+              alt="Aditya Very Cleverina CFP logo"
               width={192}
               height={192}
               className="w-9 h-9 rounded-md object-cover"
               priority
             />
-            <span>Aditya Very Cleverina</span>
+            <div className='flex flex-col leading-tight'>
+              <span className="font-bold text-[20px]">Teman Tumbuh</span>
+              <span className="text-[#6D6C6A] text-[14px] leading-none">Aditya Very Cleverina</span>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
