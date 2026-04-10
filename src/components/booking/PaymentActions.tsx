@@ -64,6 +64,9 @@ export function PaymentActions({
         return;
       }
 
+      // Save booking ID so confirmation page can find it
+      sessionStorage.setItem('bookingId', data.bookingId);
+
       // Redirect to DOKU checkout
       window.location.href = data.paymentUrl;
     } catch {

@@ -21,7 +21,10 @@ function ConfirmationContent() {
 
   useEffect(() => {
     async function fetchBooking() {
-      if (bookingId) {
+      // Try URL param first, then sessionStorage
+      const id = bookingId || sessionStorage.getItem('bookingId');
+      console.log('Confirmation page: bookingId =', id, 'URL =', window.location.href);
+      if (id) {
         try {
           const res = await fetch(`/api/payment/status/${bookingId}`);
           const data = await res.json();

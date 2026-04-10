@@ -189,9 +189,9 @@ export async function createCalendarEvent(params: {
 }): Promise<{ eventId: string; meetLink: string | null }> {
   const calendar = getCalendar();
 
+  // Create event without Google Meet (service accounts on personal Gmail can't create Meet links)
   const event = await calendar.events.insert({
     calendarId: CALENDAR_ID,
-    conferenceDataVersion: 1, // Required to create Google Meet link
     requestBody: {
       summary: params.summary,
       description: `${params.description}\n\nClient: ${params.attendeeName}\nEmail: ${params.attendeeEmail}`,
@@ -203,12 +203,6 @@ export async function createCalendarEvent(params: {
         dateTime: params.endTime,
         timeZone: 'Asia/Jakarta',
       },
-      conferenceData: {
-        createRequest: {
-          requestId: crypto.randomUUID(),
-          conferenceSolutionKey: { type: 'hangoutsMeet' },
-        },
-      },
       reminders: {
         useDefault: false,
         overrides: [
@@ -219,12 +213,10 @@ export async function createCalendarEvent(params: {
     },
   });
 
-  const meetLink = event.data.conferenceData?.entryPoints?.find(
-    (ep) => ep.entryPointType === 'video'
-  )?.uri || null;
+  console.log('Calendar event created:', event.data.id);
 
   return {
     eventId: event.data.id || '',
-    meetLink,
+    meetLink: null,
   };
 }

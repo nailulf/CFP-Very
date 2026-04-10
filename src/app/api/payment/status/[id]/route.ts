@@ -72,7 +72,9 @@ export async function GET(
         // 1. Create calendar event with Meet link
         let meetLink: string | null = null;
         const bookingDate = booking.booking_date || '';
+        console.log('Booking date from sheet:', JSON.stringify(bookingDate));
         const parsed = parseBookingDate(bookingDate);
+        console.log('Parsed booking date:', parsed);
 
         if (parsed) {
           try {
@@ -89,6 +91,8 @@ export async function GET(
           } catch (calError) {
             console.error('Calendar error:', calError);
           }
+        } else {
+          console.error('Could not parse booking date:', JSON.stringify(bookingDate));
         }
 
         // 2. Update sheet
