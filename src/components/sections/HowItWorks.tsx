@@ -32,7 +32,7 @@ const steps: StepCardProps[] = [
   {
     number: '1',
     numberBg: '#205781',
-    title: 'Book a free\ndiscovery call',
+    title: 'Book a\ndiscovery call',
     description: 'Tell me about your money situation (no judgment, I promise)',
   },
   {

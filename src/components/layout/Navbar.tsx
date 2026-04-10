@@ -50,7 +50,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:block">
-            <Link href="https://calendly.com/adityacleverina/30min" target="_blank" rel="noopener noreferrer">
+            <Link href="/book">
               <Button size="sm">Book a Call</Button>
             </Link>
           </div>
@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
               {link.label}
             </Link>
           ))}
-          <Link href="https://calendly.com/adityacleverina/30min" target="_blank" rel="noopener noreferrer">
+          <Link href="/book">
             <Button size="sm" fullWidth onClick={() => setIsOpen(false)}>
               Book a Call
             </Button>

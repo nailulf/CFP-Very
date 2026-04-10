@@ -41,3 +41,20 @@ export interface NewsletterSubscriber {
 }
 
 export type ServiceType = 'Financial Consultation' | 'Financial Tracker Templates' | 'Comprehensive Planning';
+
+export interface Booking {
+  id: string;
+  client_name: string;
+  client_email: string;
+  client_phone?: string;
+  service_type: string;
+  amount: number;
+  payment_status: 'pending_payment' | 'paid' | 'failed' | 'expired' | 'refunded';
+  doku_invoice_id?: string;
+  doku_payment_url?: string;
+  payment_method?: string;
+  booking_date?: string;
+  booking_time?: string;
+  paid_at?: string;
+  created_at: string;
+}

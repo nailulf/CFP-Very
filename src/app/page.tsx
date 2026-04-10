@@ -104,7 +104,7 @@ export default function Home() {
 
           <div className="flex flex-col md:flex-row gap-8">
             {[
-              { n: '1', bg: '#205781', title: 'Book a free discovery call', desc: 'Tell me about your money situation (no judgment, I promise)' },
+              { n: '1', bg: '#205781', title: 'Book a discovery call', desc: 'Tell me about your money situation (no judgment, I promise)' },
               { n: '2', bg: '#4F9DA6', title: 'Get your custom game plan', desc: "I'll create a plan that fits YOUR life, not some cookie-cutter template" },
               { n: '3', bg: '#8AD6C1', title: 'Take control of your money', desc: "Execute with confidence. I'll be right there cheering you on every step of the way!" },
             ].map((step) => (
@@ -185,13 +185,13 @@ export default function Home() {
 
           <p className="text-[18px] text-white leading-[1.6] max-w-[500px]" style={{ opacity: 0.9 }}>
             Let&apos;s build a system that keeps your finances organized.<br />
-            First consultation is on the house.
+            Book a discovery call to get started.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
-            <a href="https://calendly.com/adityacleverina/30min" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-[56px] px-8 rounded-full bg-white text-[#1A1918] font-semibold text-[16px] hover:bg-[#F0F7FA] transition-colors">
-              Book Free Discovery Call
-            </a>
+            <Link href="/book" className="inline-flex items-center justify-center h-[56px] px-8 rounded-full bg-white text-[#1A1918] font-semibold text-[16px] hover:bg-[#F0F7FA] transition-colors">
+              Book a Discovery Call
+            </Link>
             <button className="inline-flex items-center justify-center h-[52px] px-7 rounded-full border-2 border-white text-white font-medium text-[16px] hover:bg-white/10 transition-colors">
               Browse Products
             </button>
