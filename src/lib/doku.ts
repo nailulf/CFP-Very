@@ -22,15 +22,18 @@ function generateSignature(
   requestId: string,
   requestTimestamp: string,
   requestTarget: string,
-  digest: string,
-  secretKey: string
+  secretKey: string,
+  digest?: string
 ): string {
-  const componentSignature =
+  let componentSignature =
     `Client-Id:${clientId}\n` +
     `Request-Id:${requestId}\n` +
     `Request-Timestamp:${requestTimestamp}\n` +
-    `Request-Target:${requestTarget}\n` +
-    `Digest:${digest}`;
+    `Request-Target:${requestTarget}`;
+
+  if (digest) {
+    componentSignature += `\nDigest:${digest}`;
+  }
 
   const hmac = crypto.createHmac('sha256', secretKey);
   hmac.update(componentSignature);
@@ -45,7 +48,6 @@ export async function createPaymentOrder({
   itemName,
 }: CreatePaymentParams): Promise<{ paymentUrl: string; invoiceNumber: string }> {
   const requestId = crypto.randomUUID();
-  // DOKU requires ISO8601 UTC+0 format WITHOUT milliseconds
   const requestTimestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
   const requestTarget = '/checkout/v1/payment';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -57,7 +59,6 @@ export async function createPaymentOrder({
       currency: 'IDR',
       callback_url: `${baseUrl}/book/confirmation?id=${invoiceNumber}`,
       auto_redirect: true,
-      override_notification_url: `${baseUrl}/api/payment/webhook`,
     },
     payment: {
       payment_due_date: 60,
@@ -75,8 +76,8 @@ export async function createPaymentOrder({
     requestId,
     requestTimestamp,
     requestTarget,
-    digest,
-    DOKU_SECRET_KEY
+    DOKU_SECRET_KEY,
+    digest
   );
 
   const response = await fetch(`${DOKU_BASE_URL}${requestTarget}`, {
@@ -100,7 +101,6 @@ export async function createPaymentOrder({
 
   const data = JSON.parse(responseText);
 
-  // DOKU Checkout returns the payment URL in response.payment.url
   const paymentUrl = data?.response?.payment?.url || data?.payment?.url;
 
   if (!paymentUrl) {
@@ -110,6 +110,62 @@ export async function createPaymentOrder({
   return {
     paymentUrl,
     invoiceNumber,
+  };
+}
+
+/**
+ * Check payment status via DOKU API.
+ * GET /orders/v1/status/{invoice_number}
+ */
+export async function checkPaymentStatus(invoiceNumber: string): Promise<{
+  status: string;
+  paymentMethod?: string;
+}> {
+  const requestId = crypto.randomUUID();
+  const requestTimestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const requestTarget = `/orders/v1/status/${invoiceNumber}`;
+
+  // GET requests don't need Digest
+  const signature = generateSignature(
+    DOKU_CLIENT_ID,
+    requestId,
+    requestTimestamp,
+    requestTarget,
+    DOKU_SECRET_KEY
+  );
+
+  const response = await fetch(`${DOKU_BASE_URL}${requestTarget}`, {
+    method: 'GET',
+    headers: {
+      'Client-Id': DOKU_CLIENT_ID,
+      'Request-Id': requestId,
+      'Request-Timestamp': requestTimestamp,
+      'Signature': signature,
+    },
+  });
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    console.error('DOKU status check error:', responseText);
+    throw new Error(`DOKU status error: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  console.log('DOKU status response:', data);
+
+  const transactionStatus = data?.transaction?.status
+    || data?.response?.transaction?.status
+    || data?.order?.status
+    || '';
+
+  const paymentMethod = data?.payment?.payment_method_type
+    || data?.response?.payment?.payment_method_type
+    || '';
+
+  return {
+    status: transactionStatus,
+    paymentMethod,
   };
 }
 
@@ -126,8 +182,8 @@ export function verifyWebhookSignature(
     requestId,
     requestTimestamp,
     requestTarget,
-    digest,
-    DOKU_SECRET_KEY
+    DOKU_SECRET_KEY,
+    digest
   );
 
   return crypto.timingSafeEqual(
