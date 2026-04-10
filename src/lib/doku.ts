@@ -55,8 +55,9 @@ export async function createPaymentOrder({
       amount,
       invoice_number: invoiceNumber,
       currency: 'IDR',
-      callback_url: `${baseUrl}/api/payment/webhook`,
+      callback_url: `${baseUrl}/book/confirmation?id=${invoiceNumber}`,
       auto_redirect: true,
+      override_notification_url: `${baseUrl}/api/payment/webhook`,
     },
     payment: {
       payment_due_date: 60,
