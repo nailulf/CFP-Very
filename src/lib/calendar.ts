@@ -186,15 +186,15 @@ export async function createCalendarEvent(params: {
   endTime: string;   // ISO string
   attendeeEmail: string;
   attendeeName: string;
-}): Promise<string> {
+}): Promise<{ eventId: string; meetLink: string | null }> {
   const calendar = getCalendar();
 
   const event = await calendar.events.insert({
     calendarId: CALENDAR_ID,
-    sendUpdates: 'all', // Send invite emails
+    conferenceDataVersion: 1, // Required to create Google Meet link
     requestBody: {
       summary: params.summary,
-      description: params.description,
+      description: `${params.description}\n\nClient: ${params.attendeeName}\nEmail: ${params.attendeeEmail}`,
       start: {
         dateTime: params.startTime,
         timeZone: 'Asia/Jakarta',
@@ -203,9 +203,6 @@ export async function createCalendarEvent(params: {
         dateTime: params.endTime,
         timeZone: 'Asia/Jakarta',
       },
-      attendees: [
-        { email: params.attendeeEmail, displayName: params.attendeeName },
-      ],
       conferenceData: {
         createRequest: {
           requestId: crypto.randomUUID(),
@@ -220,8 +217,14 @@ export async function createCalendarEvent(params: {
         ],
       },
     },
-    conferenceDataVersion: 1,
   });
 
-  return event.data.id || '';
+  const meetLink = event.data.conferenceData?.entryPoints?.find(
+    (ep) => ep.entryPointType === 'video'
+  )?.uri || null;
+
+  return {
+    eventId: event.data.id || '',
+    meetLink,
+  };
 }

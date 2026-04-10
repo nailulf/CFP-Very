@@ -21,7 +21,7 @@ function getSheets() {
 const HEADERS = [
   'ID', 'Name', 'Email', 'Phone', 'Service', 'Amount',
   'Payment Status', 'DOKU Invoice ID', 'Payment Method',
-  'Booking Date', 'Paid At', 'Created At',
+  'Booking Date', 'Paid At', 'Created At', 'Meet Link',
 ];
 
 async function ensureHeaders(): Promise<void> {
@@ -29,7 +29,7 @@ async function ensureHeaders(): Promise<void> {
 
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A1:L1`,
+    range: `${SHEET_NAME}!A1:M1`,
   });
 
   const firstRow = response.data.values?.[0];
@@ -38,7 +38,7 @@ async function ensureHeaders(): Promise<void> {
   if (!firstRow || firstRow[0] !== HEADERS[0]) {
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A1:L1`,
+      range: `${SHEET_NAME}!A1:M1`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [HEADERS],
@@ -67,7 +67,7 @@ export async function appendBookingRow(booking: {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A:L`,
+    range: `${SHEET_NAME}!A:M`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [
@@ -84,6 +84,7 @@ export async function appendBookingRow(booking: {
           booking.booking_date || '',
           booking.paid_at || '',
           booking.created_at,
+          '', // Meet Link - filled after payment
         ],
       ],
     },
@@ -97,6 +98,7 @@ export async function updateBookingStatus(
     doku_invoice_id?: string;
     payment_method?: string;
     paid_at?: string;
+    meet_link?: string;
   }
 ): Promise<void> {
   const sheets = getSheets();
@@ -108,6 +110,8 @@ export async function updateBookingStatus(
   });
 
   const rows = response.data.values || [];
+  console.log('Sheets: Searching for booking', { bookingId, totalRows: rows.length, firstIds: rows.slice(0, 5).map(r => r[0]) });
+
   let rowIndex = -1;
   for (let i = 0; i < rows.length; i++) {
     if (rows[i][0] === bookingId) {
@@ -117,26 +121,33 @@ export async function updateBookingStatus(
   }
 
   if (rowIndex === -1) {
+    console.error('Sheets: Booking not found. All IDs:', rows.map(r => r[0]));
     throw new Error(`Booking not found: ${bookingId}`);
   }
+
+  console.log('Sheets: Found booking at row', rowIndex);
 
   // Read current row
   const currentRow = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A${rowIndex}:L${rowIndex}`,
+    range: `${SHEET_NAME}!A${rowIndex}:M${rowIndex}`,
   });
 
   const values = currentRow.data.values?.[0] || [];
 
-  // Update specific columns: G=payment_status, H=doku_invoice_id, I=payment_method, K=paid_at
+  // Ensure array has enough elements for all columns
+  while (values.length < 13) values.push('');
+
+  // Update specific columns: G=payment_status, H=doku_invoice_id, I=payment_method, K=paid_at, M=meet_link
   if (updates.payment_status) values[6] = updates.payment_status;
   if (updates.doku_invoice_id) values[7] = updates.doku_invoice_id;
   if (updates.payment_method) values[8] = updates.payment_method;
   if (updates.paid_at) values[10] = updates.paid_at;
+  if (updates.meet_link) values[12] = updates.meet_link;
 
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A${rowIndex}:L${rowIndex}`,
+    range: `${SHEET_NAME}!A${rowIndex}:M${rowIndex}`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [values],
@@ -149,7 +160,7 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
 
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_NAME}!A:L`,
+    range: `${SHEET_NAME}!A:M`,
   });
 
   const rows = response.data.values || [];
