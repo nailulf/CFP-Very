@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
@@ -26,11 +25,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${outfit.variable} font-sans antialiased`}>
         <GoogleAnalytics />
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
