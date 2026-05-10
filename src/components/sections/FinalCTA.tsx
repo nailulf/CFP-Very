@@ -1,5 +1,4 @@
 import { RocketIcon } from 'lucide-react';
-import Link from 'next/link';
 import React from 'react';
 
 export const FinalCTA: React.FC = () => {
@@ -26,9 +25,9 @@ export const FinalCTA: React.FC = () => {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
-          <Link href="/book" className="inline-flex items-center justify-center h-[56px] px-8 rounded-full bg-white text-[#1A1918] font-semibold text-[16px] hover:bg-[#F0F7FA] transition-colors">
+          <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-[56px] px-8 rounded-full bg-white text-[#1A1918] font-semibold text-[16px] hover:bg-[#F0F7FA] transition-colors">
             Book a Discovery Call
-          </Link>
+          </a>
           <button className="inline-flex items-center justify-center h-[52px] px-7 rounded-full border-2 border-white text-white font-medium text-[16px] hover:bg-white/10 transition-colors">
             Browse Products
           </button>

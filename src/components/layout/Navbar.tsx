@@ -50,9 +50,9 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:block">
-            <Link href="/book">
+            <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer">
               <Button size="sm">Book a Call</Button>
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Toggle */}
@@ -79,11 +79,11 @@ export const Navbar: React.FC = () => {
               {link.label}
             </Link>
           ))}
-          <Link href="/book">
+          <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer">
             <Button size="sm" fullWidth onClick={() => setIsOpen(false)}>
               Book a Call
             </Button>
-          </Link>
+          </a>
         </div>
       )}
     </header>

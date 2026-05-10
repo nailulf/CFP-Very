@@ -108,7 +108,7 @@ export default function ServicesPage() {
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Jadwalkan panggilan penemuan selama 30 menit untuk melihat layanan mana yang tepat untuk Anda. Tanpa komitmen.
           </p>
-          <a href="/book">
+          <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="bg-[#B6E33D] text-[#2C3E50] hover:bg-[#a3cc35]">
               Jadwalkan Panggilan <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
