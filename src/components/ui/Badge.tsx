@@ -13,7 +13,7 @@ export const Badge: React.FC<BadgeProps> = ({ children, className, variant = 'li
       className={twMerge(
         'inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold',
         variant === 'light'
-          ? 'bg-[#E0EFF5] text-[#8AD6C1]'
+          ? 'bg-[#8AD6C1] text-[#1A1918]'
           : 'bg-[#1A3A50] text-[#8AD6C1]',
         className
       )}

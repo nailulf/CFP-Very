@@ -3,17 +3,30 @@
 @theme {
   --font-sans: var(--font-outfit);
 
+  /* Core palette */
+  --color-navy: #153A56;
   --color-primary: #205781;
   --color-teal: #4F9DA6;
-  --color-mint: #8AD6C1;
-  --color-light-blue: #E0EFF5;
-  --color-dark: #1A1918;
-  --color-muted: #6D6C6A;
-  --color-subtle: #9C9B99;
-  --color-navy: #153A56;
-  --color-navy-card: #1A3A50;
+  --color-amber: #f79d35;
   --color-page-bg: #F0F7FA;
-  --color-gold: #D4A64A;
+  --color-light-blue: #E0EBF5;
+  --color-dark: #1A1918;
+  --color-muted: #666666;
+
+  /* Extended */
+  --color-mint: #8AD6C1;
+  --color-subtle: #9C9B99;
+  --color-navy-card: #1A3A50;
+
+  /* Status */
+  --color-success-bg: #E8F5EE;
+  --color-success: #1B7A3F;
+  --color-warning-bg: #FFF8E1;
+  --color-warning: #D97706;
+  --color-error-bg: #FFF0EB;
+  --color-error: #8C1C00;
+  --color-info-bg: #DFDFE6;
+  --color-info: #000066;
 }
 
 @layer base {

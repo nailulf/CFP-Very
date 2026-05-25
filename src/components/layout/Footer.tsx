@@ -4,15 +4,16 @@ import Link from 'next/link';
 
 const footerLinks = {
   Services: [
-    { label: 'Finance Training', href: '#services' },
-    { label: 'Digital Products', href: '#services' },
-    { label: 'Group Sessions', href: '#services' },
+    { label: 'Finance Training', href: '/#services' },
+    { label: 'Digital Products', href: '/#services' },
+    { label: 'Group Sessions', href: '/#services' },
+    { label: 'Finance Check', href: '/financial-health-check' },
   ],
   Company: [
     { label: 'About', href: '#about' },
     { label: 'How It Works', href: '#how-it-works' },
     { label: 'Testimonials', href: '#about' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Contact', href: "https://wa.me/6281806484635", external: true },
   ],
 };
 
