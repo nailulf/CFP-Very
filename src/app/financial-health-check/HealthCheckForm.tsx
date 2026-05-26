@@ -6,7 +6,7 @@ import {
   AlertTriangle, CheckCircle2, Zap, Star,
   Phone, RotateCcw, Landmark, PiggyBank,
   TrendingDown, Scale, TrendingUp, ShieldCheck,
-  Lightbulb, Rocket, Lock, ArrowRight, Wallet,
+  Lightbulb, Rocket, Lock, Wallet,
 } from 'lucide-react';
 import { FormData, RatioStatus, HealthCheckResults } from './lib/types';
 import {
@@ -617,7 +617,7 @@ function CTAStrip() {
       <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex flex-col gap-1">
           <p className="text-[18px] font-extrabold text-white">Mau tau langkah konkret selanjutnya?</p>
-          <p className="text-[13px] text-white">Diskusi gratis 30 menit bersama perencana keuangan tersertifikasi CFP®</p>
+          <p className="text-[13px] text-white">Diskusi 30 menit bersama perencana keuangan tersertifikasi CFP®</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <a
@@ -633,9 +633,9 @@ function CTAStrip() {
   );
 }
 
-// ─── FitText ──────────────────────────────────────────────────────────────────
+// ─── FitText (used for long text values only) ────────────────────────────────
 
-function FitText({ text, className, maxSize = 36, minSize = 10 }: {
+function FitText({ text, className, maxSize = 22, minSize = 10 }: {
   text: string; className?: string; maxSize?: number; minSize?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -669,6 +669,42 @@ function FitText({ text, className, maxSize = 36, minSize = 10 }: {
   );
 }
 
+// ─── ValuePanel ───────────────────────────────────────────────────────────────
+
+function ValuePanel({ displayValue, textClass }: { displayValue: string; textClass: string }) {
+  // "X.X bulan" → large number + "bulan" label on second line
+  if (displayValue.includes('bulan')) {
+    const num = displayValue.replace(/\s*bulan/, '').trim();
+    return (
+      <div className={`w-full h-full flex flex-col items-center justify-center ${textClass}`}>
+        <span className="text-[32px] sm:text-[36px] font-extrabold leading-none tracking-[-1.5px]">{num}</span>
+        <span className="text-[12px] sm:text-[13px] font-bold mt-1 opacity-70">bulan</span>
+      </div>
+    );
+  }
+
+  // Percentage values → consistent fixed size (all ≤6 chars, so 28px fits all)
+  if (displayValue.endsWith('%')) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center ${textClass}`}>
+        <span className="text-[26px] sm:text-[30px] font-extrabold leading-none tracking-tight text-center">
+          {displayValue}
+        </span>
+      </div>
+    );
+  }
+
+  // Long text values (insurance strings, "Data tidak cukup") → FitText
+  return (
+    <FitText
+      text={displayValue}
+      className={`font-semibold ${textClass}`}
+      maxSize={22}
+      minSize={9}
+    />
+  );
+}
+
 // ─── Results: Ratio Card ──────────────────────────────────────────────────────
 
 interface RatioCardProps {
@@ -699,127 +735,162 @@ function RatioCard({ icon: Icon, name, description, result }: RatioCardProps) {
           {theme.label}
         </span>
       </div>
-      {/* Right: value panel — 35% width, text auto-fits */}
+      {/* Right: value panel — 35% width */}
       <div className={`w-[35%] shrink-0 p-3 overflow-hidden ${theme.panel}`}>
-        <FitText
-          text={result.displayValue}
-          className={`font-extrabold tracking-tight ${theme.valueText}`}
-          maxSize={36}
-          minSize={10}
-        />
+        <ValuePanel displayValue={result.displayValue} textClass={theme.valueText} />
       </div>
     </div>
   );
 }
 
+// ─── Ratio Config ─────────────────────────────────────────────────────────────
+
+type RatioKey = keyof Omit<HealthCheckResults, 'overallScore' | 'overallLabel' | 'overallMessage'>;
+interface RatioConfig { key: RatioKey; icon: LucideIcon; name: string; description: string; }
+
+const RATIO_CONFIGS: RatioConfig[] = [
+  { key: 'emergencyFund', icon: Landmark, name: 'Dana Darurat', description: 'Dana darurat vs pengeluaran bulanan' },
+  { key: 'savingRatio', icon: Wallet, name: 'Rasio Tabungan', description: 'Idealnya minimal 20% dari penghasilan' },
+  { key: 'debtServiceRatio', icon: TrendingDown, name: 'Rasio Utang (DTI)', description: 'Cicilan bulanan vs penghasilan' },
+  { key: 'solvencyRatio', icon: Scale, name: 'Kekayaan Bersih', description: 'Total aset vs total kewajiban' },
+  { key: 'assetNetWorthRatio', icon: TrendingUp, name: 'Investasi vs Kekayaan Bersih', description: 'Porsi investasi dari kekayaan bersih' },
+  { key: 'debtAssetRatio', icon: PiggyBank, name: 'Rasio Utang terhadap Aset', description: 'Total utang vs total aset yang dimiliki' },
+  { key: 'insuranceCoverage', icon: ShieldCheck, name: 'Proteksi Asuransi', description: 'Proteksi jiwa & kesehatan' },
+];
+
 // ─── Results: Ratios Section ──────────────────────────────────────────────────
 
 function RatiosSection({ results }: { results: HealthCheckResults }) {
-  const row1: { key: 'emergencyFund' | 'savingRatio' | 'debtServiceRatio'; icon: LucideIcon; name: string; description: string }[] = [
-    { key: 'emergencyFund', icon: Landmark, name: 'Dana Darurat', description: 'Dana darurat vs pengeluaran bulanan' },
-    { key: 'savingRatio', icon: Wallet, name: 'Rasio Tabungan', description: 'Idealnya minimal 20% dari penghasilan' },
-    { key: 'debtServiceRatio', icon: TrendingDown, name: 'Rasio Utang (DTI)', description: 'Cicilan bulanan vs penghasilan' },
-  ];
-  const row2: { key: 'solvencyRatio' | 'investmentAssetsRatio' | 'insuranceCoverage'; icon: LucideIcon; name: string; description: string }[] = [
-    { key: 'solvencyRatio', icon: Scale, name: 'Kekayaan Bersih', description: 'Total aset vs total kewajiban' },
-    { key: 'investmentAssetsRatio', icon: TrendingUp, name: 'Aset Investasi', description: 'Porsi aset yang produktif & bertumbuh' },
-    { key: 'insuranceCoverage', icon: ShieldCheck, name: 'Proteksi Asuransi', description: 'Proteksi jiwa & kesehatan' },
-  ];
+  const nonGreenCount = RATIO_CONFIGS.filter(r => results[r.key].status !== 'green').length;
+
+  const sorted = [...RATIO_CONFIGS].sort((a, b) => results[b.key].score - results[a.key].score);
+  const bestRatio = sorted[0];
+  const worstRatio = sorted[sorted.length - 1];
 
   return (
     <section className="bg-[#F0F7FA] px-5 sm:px-[120px] py-16 sm:py-[64px]">
       <div className="max-w-screen-xl mx-auto flex flex-col gap-8">
         {/* Header */}
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#153A56]">Detail 6 Rasio Keuangan</h2>
+            <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#153A56]">Detail 7 Rasio Keuangan</h2>
             <p className="text-[14px] text-[#666666]">Ringkasan kondisi setiap aspek keuanganmu.</p>
           </div>
+          {nonGreenCount === 0 ? (
+            <div className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E8F5EE] border border-[#B5DEC6]">
+              <CheckCircle2 size={14} strokeWidth={2.5} className="text-[#1B7A3F]" />
+              <span className="text-[13px] font-bold text-[#1B7A3F]">Semua rasio dalam kondisi sehat</span>
+            </div>
+          ) : (
+            <div className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFF0EB] border border-[#F0C0A8]">
+              <AlertTriangle size={14} strokeWidth={2.5} className="text-[#C0451A]" />
+              <span className="text-[13px] font-bold text-[#C0451A]">{nonGreenCount}/7 Rasio keuanganmu perlu ditingkatkan</span>
+            </div>
+          )}
         </div>
-        {/* Row 1 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {row1.map((r) => (
-            <RatioCard key={r.key} icon={r.icon} name={r.name} description={r.description} result={results[r.key]} />
-          ))}
+
+        {/* Best + Worst — always visible */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-[1.5px] text-[#C0451A]">Prioritas Utama</span>
+            <RatioCard icon={worstRatio.icon} name={worstRatio.name} description={worstRatio.description} result={results[worstRatio.key]} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-[1.5px] text-[#1B7A3F]">Kondisi Terbaik</span>
+            <RatioCard icon={bestRatio.icon} name={bestRatio.name} description={bestRatio.description} result={results[bestRatio.key]} />
+          </div>
         </div>
-        {/* Row 2 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {row2.map((r) => (
-            <RatioCard key={r.key} icon={r.icon} name={r.name} description={r.description} result={results[r.key]} />
-          ))}
-        </div>
+
       </div>
     </section>
   );
 }
 
-// ─── Results: Recommendations ─────────────────────────────────────────────────
+// ─── Results: Locked Section (5 hidden ratios + recommendations) ─────────────
 
 const REC_ICON: Record<string, LucideIcon> = {
   emergencyFund: Landmark,
   savingRatio: TrendingUp,
   debtServiceRatio: TrendingDown,
   solvencyRatio: Scale,
-  investmentAssetsRatio: Lightbulb,
+  assetNetWorthRatio: Lightbulb,
+  debtAssetRatio: PiggyBank,
   insuranceCoverage: ShieldCheck,
 };
 
-function RecommendationsSection({ results }: { results: HealthCheckResults }) {
+function LockedSection({ results }: { results: HealthCheckResults }) {
+  const sorted = [...RATIO_CONFIGS].sort((a, b) => results[b.key].score - results[a.key].score);
+  const bestKey = sorted[0].key;
+  const worstKey = sorted[sorted.length - 1].key;
+  const hiddenRatios = RATIO_CONFIGS.filter(r => r.key !== bestKey && r.key !== worstKey);
+
   const recs = getTopRecommendations(results, 3);
-  if (recs.length === 0) return null;
 
   return (
-    <section className="bg-white px-5 sm:px-20 py-16 sm:py-[64px] relative overflow-hidden">
-      {/* Blurred recommendation cards */}
-      <div className="max-w-screen-xl mx-auto flex flex-col gap-9 select-none pointer-events-none" aria-hidden>
-        <div className="flex flex-col gap-2">
-          <h2 className="text-[28px] sm:text-[32px] font-extrabold text-[#153A56]">Rekomendasi Untukmu</h2>
-          <p className="text-[14px] sm:text-[15px] text-[#666666]">
-            Berdasarkan profil keuanganmu, berikut tiga langkah penting yang bisa kamu mulai sekarang.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 blur-[6px]">
-          {recs.map((rec, idx) => {
-            const theme = STATUS_THEME[results[rec.key].status];
-            const RecIcon = REC_ICON[rec.key] ?? Lightbulb;
-            return (
-              <div key={rec.key} className="flex flex-col gap-4 bg-[#FAFCFE] rounded-2xl p-7 border border-[#EEF4FB]">
-                <div className="flex items-center gap-2">
-                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${theme.badge} ${theme.badgeText}`}>
-                    Tindakan #{idx + 1}
-                  </span>
-                </div>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${theme.iconBg}`}>
-                  <RecIcon size={20} strokeWidth={1.8} className={theme.valueText} />
-                </div>
-                <h3 className="text-[18px] font-extrabold text-[#153A56] leading-tight">{rec.label}</h3>
-                <p className="text-[13px] text-[#555555] leading-relaxed flex-1">{rec.text}</p>
-                <span className="text-[13px] font-bold text-[#D97706]">Diskusikan dengan CFP →</span>
+    <section className="relative overflow-hidden bg-[#F0F7FA] px-5 sm:px-[120px] pb-16 sm:pb-[64px]">
+      {/* Blurred content */}
+      <div className="blur-[5px] pointer-events-none select-none" aria-hidden>
+        <div className="max-w-screen-xl mx-auto flex flex-col gap-10">
+          {/* 5 hidden ratio cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {hiddenRatios.map((r) => (
+              <RatioCard key={r.key} icon={r.icon} name={r.name} description={r.description} result={results[r.key]} />
+            ))}
+          </div>
+          {/* Recommendations */}
+          {recs.length > 0 && (
+            <div className="flex flex-col gap-7 bg-white rounded-3xl p-8 sm:p-10">
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-[24px] sm:text-[28px] font-extrabold text-[#153A56]">Rekomendasi Untukmu</h2>
+                <p className="text-[14px] text-[#666666]">
+                  Berdasarkan profil keuanganmu, berikut tiga langkah penting yang bisa kamu mulai sekarang.
+                </p>
               </div>
-            );
-          })}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {recs.map((rec, idx) => {
+                  const theme = STATUS_THEME[results[rec.key].status];
+                  const RecIcon = REC_ICON[rec.key] ?? Lightbulb;
+                  return (
+                    <div key={rec.key} className="flex flex-col gap-4 bg-[#FAFCFE] rounded-2xl p-7 border border-[#EEF4FB]">
+                      <span className={`self-start text-[11px] font-bold px-2.5 py-1 rounded-full ${theme.badge} ${theme.badgeText}`}>
+                        Tindakan #{idx + 1}
+                      </span>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${theme.iconBg}`}>
+                        <RecIcon size={20} strokeWidth={1.8} className={theme.valueText} />
+                      </div>
+                      <h3 className="text-[18px] font-extrabold text-[#153A56] leading-tight">{rec.label}</h3>
+                      <p className="text-[13px] text-[#555555] leading-relaxed flex-1">{rec.text}</p>
+                      <span className="text-[13px] font-bold text-[#D97706]">Diskusikan dengan CFP →</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Lock overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-white/75 backdrop-blur-[3px] px-5 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-[#F0F7FA] border border-[#DDE9F5] flex items-center justify-center">
-          <Lock size={24} strokeWidth={1.8} className="text-[#205781]" />
+      {/* Single combined overlay positioned 20% from section top */}
+      <div className="absolute inset-0 flex flex-col items-start justify-start gap-5 bg-[#F0F7FA]/80 backdrop-blur-[3px] px-5 text-center">
+        <div className="w-full flex flex-col items-center gap-5" style={{ marginTop: '20%' }}>
+          <div className="w-14 h-14 rounded-2xl bg-white border border-[#DDE9F5] flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Lock size={24} strokeWidth={1.8} className="text-[#205781]" />
+          </div>
+          <div className="flex flex-col gap-1.5 max-w-[440px]">
+            <p className="text-[20px] font-extrabold text-[#153A56]">Dapatkan Analisis Lengkap</p>
+            <p className="text-[14px] text-[#666666] leading-relaxed">
+              Detail semua rasio dan rekomendasi konkret tersedia dalam sesi konsultasi bersama perencana keuangan CFP® kami.
+            </p>
+          </div>
+          <a
+            href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#D97706] text-white text-[14px] font-bold px-7 py-3.5 rounded-full hover:bg-[#C96D00] transition-colors"
+            style={{ boxShadow: '0 4px 14px 0 rgba(255,132,0,0.25)' }}
+          >
+            <Phone size={15} strokeWidth={2.5} />
+            Book a Call
+          </a>
         </div>
-        <div className="flex flex-col gap-1.5 max-w-[420px]">
-          <p className="text-[20px] font-extrabold text-[#153A56]">Dapatkan Rekomendasi Lengkap</p>
-          <p className="text-[14px] text-[#666666] leading-relaxed">
-            Langkah-langkah konkret tersedia dalam sesi konsultasi gratis bersama perencana keuangan CFP® kami.
-          </p>
-        </div>
-        <a
-          href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-[#D97706] text-white text-[14px] font-bold px-7 py-3.5 rounded-full hover:bg-[#C96D00] transition-colors"
-          style={{ boxShadow: '0 4px 14px 0 rgba(255,132,0,0.25)' }}
-        >
-          <Phone size={15} strokeWidth={2.5} />
-          Mulai Konsultasi Gratis
-        </a>
       </div>
     </section>
   );
@@ -849,7 +920,7 @@ function BottomCTA({ onReset }: { onReset: () => void }) {
           style={{ boxShadow: '0 4px 16px 0 rgba(255,132,0,0.30)' }}
         >
           <Phone size={17} strokeWidth={2.5} />
-          Jadwalkan Konsultasi Gratis
+          Book a Call
         </a>
         <button
           onClick={onReset}
@@ -859,7 +930,6 @@ function BottomCTA({ onReset }: { onReset: () => void }) {
           Ulangi dari Awal
         </button>
       </div>
-      <p className="text-[12px] text-white/60">Gratis · Tanpa Komitmen · Langsung dengan CFP tersertifikasi</p>
     </section>
   );
 }
@@ -871,7 +941,8 @@ const LOADING_STEPS = [
   { icon: Wallet, label: 'Menghitung rasio tabungan...' },
   { icon: TrendingDown, label: 'Menganalisis cicilan utang...' },
   { icon: Scale, label: 'Menilai kekayaan bersih...' },
-  { icon: TrendingUp, label: 'Mengukur portofolio investasi...' },
+  { icon: TrendingUp, label: 'Mengukur investasi vs kekayaan bersih...' },
+  { icon: PiggyBank, label: 'Menghitung rasio utang terhadap aset...' },
   { icon: ShieldCheck, label: 'Memeriksa proteksi asuransi...' },
 ];
 
@@ -918,10 +989,9 @@ function LoadingScreen() {
 // ─── Results Page ─────────────────────────────────────────────────────────────
 
 function ResultsPage({
-  results, data, onReset,
+  results, onReset,
 }: {
   results: HealthCheckResults;
-  data: FormData;
   onReset: () => void;
 }) {
   return (
@@ -929,7 +999,7 @@ function ResultsPage({
       <ScoreHero results={results} />
       <CTAStrip />
       <RatiosSection results={results} />
-      <RecommendationsSection results={results} />
+      <LockedSection results={results} />
       <BottomCTA onReset={onReset} />
     </div>
   );
@@ -1005,7 +1075,7 @@ export default function HealthCheckForm() {
   }
 
   if (loading) return <LoadingScreen />;
-  if (results) return <ResultsPage results={results} data={form} onReset={handleReset} />;
+  if (results) return <ResultsPage results={results} onReset={handleReset} />;
 
   const stepProps: StepProps = { form, setA, setB, setC, setD, setE, setF, setG };
 

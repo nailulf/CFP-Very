@@ -69,7 +69,8 @@ export interface HealthCheckResults {
   savingRatio: RatioResult;
   debtServiceRatio: RatioResult;
   solvencyRatio: RatioResult;
-  investmentAssetsRatio: RatioResult;
+  assetNetWorthRatio: RatioResult;
+  debtAssetRatio: RatioResult;
   insuranceCoverage: RatioResult;
   overallScore: number;
   overallLabel: string;

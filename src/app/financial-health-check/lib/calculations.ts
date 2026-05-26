@@ -124,7 +124,7 @@ export function computeDebtServiceRatio(data: FormData): RatioResult {
   const ratio = (data.C.debtPayment / totalIncome) * 100;
 
   let status: RatioStatus;
-  if (ratio <= 30) {
+  if (ratio < 30) {
     status = 'green';
   } else if (ratio <= 40) {
     status = 'yellow';
@@ -167,19 +167,58 @@ export function computeSolvencyRatio(data: FormData): RatioResult {
   };
 }
 
-export function computeInvestmentAssetsRatio(data: FormData): RatioResult {
+export function computeAssetNetWorthRatio(data: FormData): RatioResult {
   const totalAssets = computeTotalAssets(data);
 
   if (totalAssets === 0) {
     return { value: null, displayValue: 'Data tidak cukup', status: 'red', score: 25 };
   }
 
-  const ratio = (data.D.totalInvestments / totalAssets) * 100;
+  const totalLiabilities = computeTotalLiabilities(data);
+  const totalNetWorth = totalAssets - totalLiabilities;
+
+  if (totalNetWorth <= 0) {
+    return { value: 0, displayValue: '0.0%', status: 'red', score: 25 };
+  }
+
+  const ratio = (data.D.totalInvestments / totalNetWorth) * 100;
 
   let status: RatioStatus;
   if (ratio >= 50) {
     status = 'green';
   } else if (ratio >= 20) {
+    status = 'yellow';
+  } else {
+    status = 'red';
+  }
+
+  return {
+    value: ratio,
+    displayValue: formatPercent(ratio),
+    status,
+    score: statusScore(status),
+  };
+}
+
+export function computeDebtAssetRatio(data: FormData): RatioResult {
+  const totalAssets = computeTotalAssets(data);
+
+  if (totalAssets === 0) {
+    return { value: null, displayValue: 'Data tidak cukup', status: 'red', score: 25 };
+  }
+
+  const totalLiabilities = computeTotalLiabilities(data);
+
+  if (totalLiabilities === 0) {
+    return { value: 0, displayValue: '0.0%', status: 'green', score: 100 };
+  }
+
+  const ratio = (totalLiabilities / totalAssets) * 100;
+
+  let status: RatioStatus;
+  if (ratio < 30) {
+    status = 'green';
+  } else if (ratio <= 50) {
     status = 'yellow';
   } else {
     status = 'red';
@@ -263,15 +302,17 @@ export function computeHealthCheckResults(data: FormData): HealthCheckResults {
   const savingRatio = computeSavingRatio(data);
   const debtServiceRatio = computeDebtServiceRatio(data);
   const solvencyRatio = computeSolvencyRatio(data);
-  const investmentAssetsRatio = computeInvestmentAssetsRatio(data);
+  const assetNetWorthRatio = computeAssetNetWorthRatio(data);
+  const debtAssetRatio = computeDebtAssetRatio(data);
   const insuranceCoverage = computeInsuranceCoverage(data);
 
   const overallScore =
-    emergencyFund.score * 0.2 +
-    savingRatio.score * 0.2 +
-    debtServiceRatio.score * 0.2 +
+    emergencyFund.score * 0.18 +
+    savingRatio.score * 0.18 +
+    debtServiceRatio.score * 0.18 +
     solvencyRatio.score * 0.15 +
-    investmentAssetsRatio.score * 0.1 +
+    assetNetWorthRatio.score * 0.10 +
+    debtAssetRatio.score * 0.06 +
     insuranceCoverage.score * 0.15;
 
   const labelEntry = SCORE_LABELS.find((l) => overallScore >= l.min)!;
@@ -281,7 +322,8 @@ export function computeHealthCheckResults(data: FormData): HealthCheckResults {
     savingRatio,
     debtServiceRatio,
     solvencyRatio,
-    investmentAssetsRatio,
+    assetNetWorthRatio,
+    debtAssetRatio,
     insuranceCoverage,
     overallScore,
     overallLabel: labelEntry.label,
@@ -322,16 +364,22 @@ const RECOMMENDATIONS: RecommendationEntry[] = [
     priority: 4,
   },
   {
-    key: 'investmentAssetsRatio',
-    label: 'Aset Investasi',
-    text: 'Aset investasimu masih minim. Mulai alokasikan dana ke instrumen yang bisa bertumbuh.',
+    key: 'assetNetWorthRatio',
+    label: 'Investasi vs Kekayaan Bersih',
+    text: 'Porsi investasimu terhadap kekayaan bersih masih rendah. Mulai alokasikan dana ke instrumen yang bisa bertumbuh.',
     priority: 5,
+  },
+  {
+    key: 'debtAssetRatio',
+    label: 'Rasio Utang terhadap Aset',
+    text: 'Utangmu cukup besar dibanding total asetmu. Fokus melunasi utang konsumtif untuk memperkuat posisi keuangan.',
+    priority: 6,
   },
   {
     key: 'insuranceCoverage',
     label: 'Proteksi',
     text: 'Proteksimu belum lengkap. Pastikan kamu punya asuransi kesehatan & jiwa yang memadai.',
-    priority: 6,
+    priority: 7,
   },
 ];
 
