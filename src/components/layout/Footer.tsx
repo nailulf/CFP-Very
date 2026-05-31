@@ -1,23 +1,15 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const footerLinks = {
-  Services: [
-    { label: 'Finance Training', href: '/#services' },
-    { label: 'Digital Products', href: '/#services' },
-    { label: 'Group Sessions', href: '/#services' },
-    { label: 'Finance Check', href: '/financial-health-check' },
-  ],
-  Company: [
-    { label: 'About', href: '#about' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Testimonials', href: '#about' },
-    { label: 'Contact', href: "https://wa.me/6281806484635", external: true },
-  ],
-};
+import { useLang } from '@/lib/lang-context';
+import { translations } from '@/lib/translations';
 
 export const Footer: React.FC = () => {
+  const { lang } = useLang();
+  const t = translations[lang].footer;
+
   return (
     <footer className="bg-[#153A56] pt-12 pb-8 px-5 sm:px-10 lg:px-20">
       <div className="mx-auto w-full max-w-screen-xl flex flex-col gap-8">
@@ -38,16 +30,16 @@ export const Footer: React.FC = () => {
               </span>
             </Link>
             <p className="text-[14px] text-[#9C9B99] leading-[1.5]">
-              Making personal finance management fun, friendly, and actually useful. One client at a time. 💛
+              {t.brand}
             </p>
           </div>
 
           {/* Link columns */}
           <div className="flex gap-16">
-            {Object.entries(footerLinks).map(([column, links]) => (
-              <div key={column} className="flex flex-col gap-3">
-                <h4 className="text-[14px] font-semibold text-white">{column}</h4>
-                {links.map((link) => (
+            {t.columns.map((col) => (
+              <div key={col.heading} className="flex flex-col gap-3">
+                <h4 className="text-[14px] font-semibold text-white">{col.heading}</h4>
+                {col.links.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
@@ -74,10 +66,10 @@ export const Footer: React.FC = () => {
               height={192}
               className="w-6 h-6 rounded object-cover"
             />
-            &copy; {new Date().getFullYear()} Aditya Very Cleverina. All rights reserved.
+            &copy; {new Date().getFullYear()} Aditya Very Cleverina. {t.copyright}
           </span>
           <span className="text-[12px] text-[#6D6C6A]">
-            Made with 🧡 and too much coffee
+            {t.tagline}
           </span>
         </div>
       </div>

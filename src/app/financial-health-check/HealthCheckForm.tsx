@@ -609,9 +609,100 @@ function ScoreHero({ results }: { results: HealthCheckResults }) {
   );
 }
 
+// ─── Book Call Modal ──────────────────────────────────────────────────────────
+
+function BookCallModal({ results, formData, onClose }: { results: HealthCheckResults; formData: FormData; onClose: () => void }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+
+  function validate(): string[] {
+    const errs: string[] = [];
+    if (!name.trim()) errs.push('Nama wajib diisi.');
+    if (!email.trim()) errs.push('Email wajib diisi.');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.push('Format email tidak valid.');
+    return errs;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const errs = validate();
+    if (errs.length) { setFormErrors(errs); return; }
+    setSubmitting(true);
+    setFormErrors([]);
+
+    fetch('/api/health-check-lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim(), results, form: formData }),
+    }).catch(console.error);
+
+    window.open('https://wa.me/6281806484635', '_blank');
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-[3px]">
+      <div
+        className="bg-white w-full sm:max-w-[440px] rounded-t-3xl sm:rounded-2xl p-8 relative"
+        style={{ boxShadow: '0 8px 40px 0 rgba(21,58,86,0.15)' }}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#F0F7FA] text-[#888] text-[13px] hover:bg-[#E0EBF5] transition-colors"
+        >
+          ✕
+        </button>
+
+        <div className="flex flex-col gap-1 mb-6 pr-8">
+          <h3 className="text-[20px] font-extrabold text-[#153A56]">Sebelum kita mulai...</h3>
+          <p className="text-[13px] text-[#666666] leading-relaxed">
+            Beri tahu kami siapa kamu agar perencana keuangan bisa menyiapkan sesi konsultasimu.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-[#3A5A70]">Nama Lengkap <span className="text-[#C0451A]">*</span></label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama kamu" className={inputBase} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-[#3A5A70]">Email <span className="text-[#C0451A]">*</span></label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@contoh.com" className={inputBase} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-[#3A5A70]">
+              No. HP <span className="text-[11px] font-normal text-[#9BAFC0]">(opsional)</span>
+            </label>
+            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xxxxxxxxxx" className={inputBase} />
+          </div>
+
+          {formErrors.length > 0 && (
+            <div className="rounded-[10px] bg-[#FFF0EB] border border-[#F0A090] px-4 py-3">
+              {formErrors.map((e) => <p key={e} className="text-[13px] text-[#C0451A]">{e}</p>)}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-1 inline-flex items-center justify-center gap-2 bg-[#D97706] text-white text-[15px] font-bold px-7 py-3.5 rounded-full hover:bg-[#C96D00] transition-colors disabled:opacity-60"
+            style={{ boxShadow: '0 4px 14px 0 rgba(255,132,0,0.25)' }}
+          >
+            <Phone size={15} strokeWidth={2.5} />
+            {submitting ? 'Memproses...' : 'Lanjut ke WhatsApp →'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Results: CTA Strip ───────────────────────────────────────────────────────
 
-function CTAStrip() {
+function CTAStrip({ onBookCall }: { onBookCall: () => void }) {
   return (
     <section className="bg-[#f79d35] px-5 sm:px-20 py-7">
       <div className="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
@@ -620,13 +711,13 @@ function CTAStrip() {
           <p className="text-[13px] text-white">Diskusi 30 menit bersama perencana keuangan tersertifikasi CFP®</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <a
-            href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer"
+          <button
+            onClick={onBookCall}
             className="inline-flex items-center gap-2 bg-white text-[#D97706] text-[14px] font-extrabold px-7 py-3.5 rounded-full hover:bg-white/90 transition-colors whitespace-nowrap"
           >
             <Phone size={15} strokeWidth={2.5} />
             Jadwalkan Konsultasi
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -818,7 +909,7 @@ const REC_ICON: Record<string, LucideIcon> = {
   insuranceCoverage: ShieldCheck,
 };
 
-function LockedSection({ results }: { results: HealthCheckResults }) {
+function LockedSection({ results, onBookCall }: { results: HealthCheckResults; onBookCall: () => void }) {
   const sorted = [...RATIO_CONFIGS].sort((a, b) => results[b.key].score - results[a.key].score);
   const bestKey = sorted[0].key;
   const worstKey = sorted[sorted.length - 1].key;
@@ -882,14 +973,14 @@ function LockedSection({ results }: { results: HealthCheckResults }) {
               Detail semua rasio dan rekomendasi konkret tersedia dalam sesi konsultasi bersama perencana keuangan CFP® kami.
             </p>
           </div>
-          <a
-            href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer"
+          <button
+            onClick={onBookCall}
             className="inline-flex items-center gap-2 bg-[#D97706] text-white text-[14px] font-bold px-7 py-3.5 rounded-full hover:bg-[#C96D00] transition-colors"
             style={{ boxShadow: '0 4px 14px 0 rgba(255,132,0,0.25)' }}
           >
             <Phone size={15} strokeWidth={2.5} />
-            Book a Call
-          </a>
+            Mulai Konsultasi Gratis
+          </button>
         </div>
       </div>
     </section>
@@ -898,7 +989,7 @@ function LockedSection({ results }: { results: HealthCheckResults }) {
 
 // ─── Results: Bottom CTA ──────────────────────────────────────────────────────
 
-function BottomCTA({ onReset }: { onReset: () => void }) {
+function BottomCTA({ onReset, onBookCall }: { onReset: () => void; onBookCall: () => void }) {
   return (
     <section
       className="px-5 sm:px-20 py-[72px] flex flex-col items-center gap-6 text-center"
@@ -914,14 +1005,14 @@ function BottomCTA({ onReset }: { onReset: () => void }) {
         Perencana keuangan kami siap membantu kamu menyusun rencana aksi yang nyata — bukan sekadar teori.
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-        <a
-          href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer"
+        <button
+          onClick={onBookCall}
           className="inline-flex items-center gap-2 bg-[#D97706] text-white text-[16px] font-extrabold px-8 py-4 rounded-full hover:bg-[#C96D00] transition-colors whitespace-nowrap"
           style={{ boxShadow: '0 4px 16px 0 rgba(255,132,0,0.30)' }}
         >
           <Phone size={17} strokeWidth={2.5} />
-          Book a Call
-        </a>
+          Jadwalkan Konsultasi Gratis
+        </button>
         <button
           onClick={onReset}
           className="inline-flex items-center gap-2 bg-white/20 text-white text-[16px] font-semibold px-8 py-4 rounded-full hover:bg-white/30 transition-colors whitespace-nowrap"
@@ -989,18 +1080,24 @@ function LoadingScreen() {
 // ─── Results Page ─────────────────────────────────────────────────────────────
 
 function ResultsPage({
-  results, onReset,
+  results, formData, onReset,
 }: {
   results: HealthCheckResults;
+  formData: FormData;
   onReset: () => void;
 }) {
+  const [showModal, setShowModal] = useState(false);
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
+
   return (
     <div className="pt-[72px]">
       <ScoreHero results={results} />
-      <CTAStrip />
+      <CTAStrip onBookCall={openModal} />
       <RatiosSection results={results} />
-      <LockedSection results={results} />
-      <BottomCTA onReset={onReset} />
+      <LockedSection results={results} onBookCall={openModal} />
+      <BottomCTA onReset={onReset} onBookCall={openModal} />
+      {showModal && <BookCallModal results={results} formData={formData} onClose={closeModal} />}
     </div>
   );
 }
@@ -1075,7 +1172,7 @@ export default function HealthCheckForm() {
   }
 
   if (loading) return <LoadingScreen />;
-  if (results) return <ResultsPage results={results} onReset={handleReset} />;
+  if (results) return <ResultsPage results={results} formData={form} onReset={handleReset} />;
 
   const stepProps: StepProps = { form, setA, setB, setC, setD, setE, setF, setG };
 

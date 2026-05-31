@@ -5,15 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-
-const navLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'About', href: '#about' },
-];
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useLang } from '@/lib/lang-context';
+import { translations } from '@/lib/translations';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { lang } = useLang();
+  const t = translations[lang].navbar;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E0EFF5]">
@@ -37,9 +36,9 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {t.links.map((link) => (
               <Link
-                key={link.label}
+                key={link.href}
                 href={link.href}
                 className="text-[14px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
               >
@@ -48,10 +47,11 @@ export const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:block">
+          {/* Desktop right: switcher + CTA */}
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer">
-              <Button size="sm">Book a Call</Button>
+              <Button size="sm">{t.cta}</Button>
             </a>
           </div>
 
@@ -69,9 +69,9 @@ export const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-[#E0EFF5] px-5 py-6 flex flex-col gap-5">
-          {navLinks.map((link) => (
+          {t.links.map((link) => (
             <Link
-              key={link.label}
+              key={link.href}
               href={link.href}
               className="text-[15px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
               onClick={() => setIsOpen(false)}
@@ -79,9 +79,10 @@ export const Navbar: React.FC = () => {
               {link.label}
             </Link>
           ))}
+          <LanguageSwitcher />
           <a href="https://wa.me/6281806484635" target="_blank" rel="noopener noreferrer">
             <Button size="sm" fullWidth onClick={() => setIsOpen(false)}>
-              Book a Call
+              {t.cta}
             </Button>
           </a>
         </div>

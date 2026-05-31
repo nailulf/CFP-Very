@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Package, ArrowRight } from 'lucide-react';
 import { DigitalProductsModal } from '@/components/sections/DigitalProductsModal';
 import { digitalProducts } from '@/data/digitalProducts';
+import { useLang } from '@/lib/lang-context';
+import { translations } from '@/lib/translations';
 
 interface DigitalProductsCardProps {
   iconBg?: string;
@@ -12,6 +14,8 @@ interface DigitalProductsCardProps {
 export const DigitalProductsCard: React.FC<DigitalProductsCardProps> = ({ iconBg = '#205781' }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { lang } = useLang();
+  const t = translations[lang].services.digital;
 
   const setHoverOn = () => setIsHovered(true);
   const setHoverOff = () => setIsHovered(false);
@@ -41,17 +45,19 @@ export const DigitalProductsCard: React.FC<DigitalProductsCardProps> = ({ iconBg
         role="button"
         aria-haspopup="dialog"
       >
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconBg }}>
-          <Package className="w-7 h-7 text-white" />
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconBg }}>
+            <Package className="w-7 h-7 text-white" />
+          </div>
+          <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.3px] text-white">
+            {t.title}
+          </h3>
         </div>
-        <h3 className="text-[22px] font-bold leading-[1.2] tracking-[-0.3px] text-white">
-          Digital Products<br />&amp; Templates
-        </h3>
         <p className="text-[15px] leading-[1.6] text-[#B8B9B6]">
-          Grab-and-go tools for your financial glow-up. Planners, trackers &amp; guides designed to be actually useful.
+          {t.description}
         </p>
         <ul className="flex flex-col gap-2">
-          {['Ready-to-Use Planners', 'Investment Trackers', 'Instant Digital Download'].map((point) => (
+          {t.points.map((point) => (
             <li key={point} className="flex items-center gap-2 text-[14px] text-[#B8B9B6]">
               <span className="text-[#8AD6C1] font-bold">✓</span>
               {point}
@@ -61,8 +67,8 @@ export const DigitalProductsCard: React.FC<DigitalProductsCardProps> = ({ iconBg
         <div className="mt-auto pt-4 border-t border-white/10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-white">{digitalProducts.length} templates &amp; tools</p>
-              <p className="text-xs text-[#9C9B99] mt-0.5">{freeCount} free downloads available</p>
+              <p className="text-sm font-semibold text-white">{digitalProducts.length} {t.toolsSuffix}</p>
+              <p className="text-xs text-[#9C9B99] mt-0.5">{freeCount} {t.freeSuffix}</p>
             </div>
             <div
               className="flex items-center justify-center w-9 h-9 rounded-full bg-[#8AD6C1]/10 text-[#8AD6C1]"
