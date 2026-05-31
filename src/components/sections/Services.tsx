@@ -35,21 +35,21 @@ export const Services: React.FC = () => {
           <DigitalProductsCard iconBg="#205781" />
 
           <ServiceInfoCard
-            href="https://wa.me/6281806484635?text=Halo%2C+saya+tertarik+dengan+layanan+Personal+Finance+Consultation"
             iconBg="#4F9DA6"
             Icon={Sprout}
             title={<>{t.consultation.title[0]}<br />{t.consultation.title[1]}</>}
             description={t.consultation.description}
             points={t.consultation.points}
+            cta={{ label: 'Financial Health Check', href: '/financial-health-check' }}
           />
 
           <ServiceInfoCard
-            href="https://wa.me/6281806484635?text=Halo%2C+saya+tertarik+dengan+layanan+Group+or+Corporate+Sessions"
             iconBg="#8AD6C1"
             Icon={Users}
             title={<>{t.group.title[0]}<br />{t.group.title[1]}</>}
             description={t.group.description}
             points={t.group.points}
+            cta={{ label: 'Contact Us', href: 'https://wa.me/6281806484635?text=Halo%2C+saya+tertarik+dengan+layanan+Group+or+Corporate+Sessions', external: true }}
           />
         </div>
       </div>
