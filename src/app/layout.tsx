@@ -10,6 +10,9 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 export const metadata: Metadata = {
   title: "Aditya Very Cleverina CFP | Personal Finance Coach | Perencana Keuangan",
   description: "Personal finance training, digital products & 1-on-1 sessions that actually make sense — no boring jargon, just real clarity.",
+  other: {
+    "google-adsense-account": "ca-pub-6515526325251643",
+  },
   icons: {
     icon: [{ url: '/icon_1.png?v=2', type: 'image/png', sizes: '192x192' }],
     shortcut: [{ url: '/icon_1.png?v=2', type: 'image/png' }],
