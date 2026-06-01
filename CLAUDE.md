@@ -192,19 +192,119 @@ className="text-white"
 
 ```
 src/
-  app/             # Next.js pages (App Router)
+  app/
+    page.tsx                          # Home (/)
+    layout.tsx                        # Root layout (fonts, analytics, SiteChrome)
+    globals.css
+    blog/
+      page.tsx                        # Blog index (/blog)
+      BlogListClient.tsx
+      [slug]/page.tsx                 # Blog post (/blog/[slug])
+    contact/page.tsx                  # Contact page (/contact)
+    services/page.tsx                 # Services page (/services)
+    financial-health-check/
+      page.tsx                        # Financial Health Check (/financial-health-check)
+      HealthCheckForm.tsx
+      lib/
+        calculations.ts
+        types.ts
+    generate-invoice/
+      page.tsx                        # Invoice generator (/generate-invoice)
+      layout.tsx
+      InvoiceGenerator.tsx
+      [id]/page.tsx                   # Single invoice view
+      list/
+        page.tsx
+        InvoiceList.tsx
+      login/
+        page.tsx
+        LoginForm.tsx
+    keystatic/[[...params]]/page.tsx  # Keystatic CMS admin (/keystatic)
+    api/
+      contact/route.ts
+      health-check-lead/route.ts
+      invoice/[id]/route.ts
+      invoice/list/route.ts
+      invoice/save/route.ts
+      invoice-auth/login/route.ts
+      invoice-auth/logout/route.ts
+      newsletter/route.ts
+      keystatic/[...params]/route.ts
+
   components/
-    layout/        # Navbar, Footer, SiteChrome
-    sections/      # Page sections (Hero, HowItWorks, etc.)
-    ui/            # Reusable primitives (Button, Badge, Modal, etc.)
-  data/            # Static data
-  lib/             # Utilities, API helpers
-  types/           # Shared TypeScript types
+    GoogleAnalytics.tsx
+    layout/
+      Navbar.tsx
+      Footer.tsx
+      SiteChrome.tsx                  # Wraps LanguageProvider + layout chrome
+    sections/
+      Hero.tsx
+      Services.tsx
+      ServiceInfoCard.tsx
+      HowItWorks.tsx
+      SocialProof.tsx
+      BlogPreview.tsx
+      FinalCTA.tsx
+      ContactPanel.tsx
+      DigitalProductsCard.tsx
+      DigitalProductsModal.tsx
+    ui/
+      Badge.tsx
+      Button.tsx
+      ComingSoonBadge.tsx
+      Container.tsx
+      LanguageSwitcher.tsx
+      Modal.tsx
+      SectionHeader.tsx
+
+  data/
+    digitalProducts.ts
+
+  lib/
+    lang-context.tsx                  # LanguageProvider + useLang hook
+    translations.ts                   # All UI strings keyed by 'id' | 'en'
+    google-sheets.ts
+    invoice-auth.ts
+    invoice-payments.ts
+    invoice-store.ts
+    keystatic.ts
+    supabase.ts
+
+  types/
+    index.ts
 ```
 
 - New **page sections** → `src/components/sections/`
 - New **reusable UI primitives** → `src/components/ui/`
 - New **pages** → `src/app/`
+
+---
+
+## Internationalisation (i18n)
+
+The webapp is **bilingual: Indonesian (ID) and English (EN)**. **Indonesian is the default language.**
+
+### Architecture
+
+| File | Role |
+|------|------|
+| `src/lib/lang-context.tsx` | `LanguageProvider` (wraps the app in `SiteChrome`) + `useLang()` hook |
+| `src/lib/translations.ts` | All UI strings as a nested object keyed by `'id' \| 'en'` |
+| `src/components/ui/LanguageSwitcher.tsx` | Toggle component — persists choice to `localStorage` key `cfp-lang` |
+
+### Rules — Non-Negotiable
+
+1. **Every new user-facing string must have both `id` and `en` entries** in `translations.ts`. Never hardcode a string directly in a component.
+2. **ID is always written first** in `translations.ts`. The `en` key follows immediately below it.
+3. Components consume strings via `useLang()` + the `translations` object:
+   ```tsx
+   const { lang } = useLang();
+   const t = translations[lang].mySection;
+   ```
+4. **Never introduce a third language** without explicit user instruction.
+5. **Do not use any i18n library** (no `next-intl`, `react-i18next`, etc.) — the hand-rolled `translations.ts` object is intentional and sufficient.
+6. When the design file shows Indonesian copy, always add the English equivalent before shipping. Ask the user for the EN copy if it is not obvious.
+7. The Financial Health Check feature at `/financial-health-check` currently has its own inline string maps — keep this consistent when extending it.
 
 ---
 
@@ -225,7 +325,7 @@ src/
 
 ## Financial Health Check Feature
 
-**Route**: `/cek-kesehatan-keuangan` · **Spec**: `Financial Health Check Spec.docx`
+**Route**: `/financial-health-check` · **Spec**: `Financial Health Check Spec.docx`
 
 ### Design nodes
 | Node ID | Screen |
@@ -234,8 +334,8 @@ src/
 | `O1rpD6` | Results / Verdict page |
 
 ### Architecture
-- All calculations are **client-side** (`src/app/cek-kesehatan-keuangan/lib/calculations.ts`)
-- Types live in `src/app/cek-kesehatan-keuangan/lib/types.ts`
+- All calculations are **client-side** (`src/app/financial-health-check/lib/calculations.ts`)
+- Types live in `src/app/financial-health-check/lib/types.ts`
 - No login or backend required — anonymous tool
 - Single client component (`HealthCheckForm.tsx`) manages all 7 steps + results via React state
 

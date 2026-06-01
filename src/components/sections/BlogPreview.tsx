@@ -1,94 +1,93 @@
-import React from 'react';
-import Link from 'next/link';
-import { ArrowRight, Calendar, User } from 'lucide-react';
-import { Container } from '@/components/ui/Container';
-import { Button } from '@/components/ui/Button';
+import React from 'react'
+import Link from 'next/link'
+import { ArrowRight, Calendar, User } from 'lucide-react'
+import { Container } from '@/components/ui/Container'
+import { Button } from '@/components/ui/Button'
+import { reader, CATEGORY_LABELS, formatDate } from '@/lib/keystatic'
 
-// Mock data - would normally come from API/Supabase
-const blogPosts = [
-  {
-    id: 1,
-    title: '5 Langkah Menuju Kebebasan Finansial di Usia 30-an',
-    excerpt: 'Temukan strategi kunci untuk membangun kekayaan dan mengamankan masa depan finansial Anda selagi masih muda.',
-    date: '10 Des 2024',
-    author: 'Aditya V.C.',
-    category: 'Manajemen Kekayaan',
-    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1000&auto=format&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'Memahami Optimasi Pajak untuk Usaha Kecil',
-    excerpt: 'Pelajari cara legal untuk mengurangi kewajiban pajak Anda dan menyimpan lebih banyak uang hasil kerja keras Anda.',
-    date: '28 Nov 2024',
-    author: 'Aditya V.C.',
-    category: 'Perencanaan Pajak',
-    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1000&auto=format&fit=crop'
-  },
-  {
-    id: 3,
-    title: 'Psikologi Uang: Mengubah Pola Pikir',
-    excerpt: 'Bagaimana keyakinan Anda tentang uang membentuk realitas finansial Anda dan cara mengubahnya untuk hasil yang lebih baik.',
-    date: '15 Nov 2024',
-    author: 'Aditya V.C.',
-    category: 'Psikologi',
-    image: 'https://images.unsplash.com/photo-1611974765270-ca12586343bb?q=80&w=1000&auto=format&fit=crop'
-  }
-];
+export async function BlogPreview() {
+  const entries = await reader.collections.blog.all()
 
-export const BlogPreview = () => {
+  const posts = entries
+    .map(entry => ({
+      slug: entry.slug,
+      title: entry.entry.title,
+      excerpt: entry.entry.excerpt,
+      publishedAt: entry.entry.publishedAt ? formatDate(entry.entry.publishedAt) : '',
+      author: entry.entry.author,
+      categoryLabel: CATEGORY_LABELS[entry.entry.category] ?? entry.entry.category,
+      coverImage: entry.entry.coverImage ?? null,
+    }))
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
+    .slice(0, 3)
+
+  if (posts.length === 0) return null
+
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-white">
       <Container>
         <div className="flex flex-col md:flex-row justify-between items-end mb-12">
           <div className="max-w-2xl">
-            <h2 className="text-3xl lg:text-4xl font-bold text-[#2C3E50] mb-4">Wawasan Finansial Terbaru</h2>
-            <p className="text-gray-600">
+            <span className="inline-block font-mono text-[11px] font-bold uppercase tracking-[1.5px] text-[#4F9DA6] mb-3">
+              Wawasan Finansial
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-[#153A56] mb-3 tracking-tight">
+              Artikel Terbaru
+            </h2>
+            <p className="text-[#666666]">
               Dapatkan update tren terbaru, tips, dan strategi dari para ahli keuangan kami.
             </p>
           </div>
-          <Link href="/blog" className="hidden md:block">
+          <Link href="/blog" className="hidden md:block mt-4">
             <Button variant="outline">Lihat Semua Artikel</Button>
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {blogPosts.map((post) => (
+          {posts.map(post => (
             <article
-              key={post.id}
-              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group"
+              key={post.slug}
+              className="bg-white rounded-2xl border border-[#E0EBF5] shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden group hover:shadow-md transition-shadow"
             >
-              <div className="relative h-48 overflow-hidden">
-                 <img 
-                    src={post.image} 
-                    alt={post.title} 
-                    className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#2C3E50]">
-                  {post.category}
+              <div className="relative h-48 overflow-hidden bg-[#E0EBF5]">
+                {post.coverImage ? (
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#205781] to-[#4F9DA6]" />
+                )}
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#205781]">
+                  {post.categoryLabel}
                 </div>
               </div>
-              
+
               <div className="p-6">
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                <div className="flex items-center gap-4 text-xs text-[#9BAFC0] font-mono mb-3">
                   <div className="flex items-center gap-1">
-                    <Calendar size={14} />
-                    {post.date}
+                    <Calendar size={13} />
+                    {post.publishedAt}
                   </div>
                   <div className="flex items-center gap-1">
-                    <User size={14} />
+                    <User size={13} />
                     {post.author}
                   </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-[#2C3E50] mb-3 line-clamp-2 group-hover:text-[#3498DB] transition-colors">
+
+                <h3 className="text-base font-semibold text-[#153A56] mb-3 line-clamp-2 group-hover:text-[#205781] transition-colors">
                   {post.title}
                 </h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                <p className="text-[#666666] text-sm mb-4 line-clamp-3">
                   {post.excerpt}
                 </p>
-                
-                <Link href={`/blog/${post.id}`} className="inline-flex items-center text-[#3498DB] font-medium hover:underline">
-                  Baca Selengkapnya <ArrowRight size={16} className="ml-1" />
+
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="inline-flex items-center text-[#205781] font-semibold text-sm hover:text-[#4F9DA6] transition-colors"
+                >
+                  Baca Selengkapnya <ArrowRight size={14} className="ml-1" />
                 </Link>
               </div>
             </article>
@@ -102,5 +101,5 @@ export const BlogPreview = () => {
         </div>
       </Container>
     </section>
-  );
-};
+  )
+}

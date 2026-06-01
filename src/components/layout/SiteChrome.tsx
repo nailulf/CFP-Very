@@ -5,7 +5,7 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { LanguageProvider } from '@/lib/lang-context';
 
-const HIDDEN_PREFIXES = ['/generate-invoice'];
+const HIDDEN_PREFIXES = ['/generate-invoice', '/keystatic'];
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '/';
