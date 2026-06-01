@@ -17,6 +17,7 @@ export default async function BlogPage() {
       category: entry.entry.category,
       categoryLabel: CATEGORY_LABELS[entry.entry.category] ?? entry.entry.category,
       coverImage: entry.entry.coverImage ?? null,
+      tags: entry.entry.tags ? [...entry.entry.tags] : [],
     }))
     .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
 

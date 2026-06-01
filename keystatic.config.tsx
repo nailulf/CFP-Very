@@ -1,4 +1,4 @@
-import { config, collection, fields } from '@keystatic/core'
+import { config, collection, singleton, fields } from '@keystatic/core'
 import { blogBlocks } from './src/lib/blog-blocks'
 
 export default config({
@@ -9,6 +9,39 @@ export default config({
     brand: {
       name: 'CFP Very — Blog CMS',
     },
+    navigation: {
+      Content: ['blog'],
+      Settings: ['author'],
+    },
+  },
+  singletons: {
+    author: singleton({
+      label: 'Author Profile',
+      path: 'content/author',
+      schema: {
+        name: fields.text({
+          label: 'Name',
+          validation: { isRequired: true },
+          defaultValue: 'Aditya V.C.',
+        }),
+        credential: fields.text({
+          label: 'Credential / Title',
+          description: 'Shown below the name on blog posts',
+          defaultValue: 'Perencana Keuangan Tersertifikasi (CFP®)',
+        }),
+        bio: fields.text({
+          label: 'Bio',
+          multiline: true,
+          description: 'Short description shown on every blog post',
+        }),
+        photo: fields.image({
+          label: 'Profile Photo',
+          directory: 'public/images',
+          publicPath: '/images',
+          description: 'Square photo, at least 200×200px',
+        }),
+      },
+    }),
   },
   collections: {
     blog: collection({
@@ -47,6 +80,14 @@ export default config({
           ],
           defaultValue: 'manajemen-kekayaan',
         }),
+        tags: fields.array(
+          fields.text({ label: 'Tag' }),
+          {
+            label: 'Tags',
+            description: 'Tambahkan tag untuk memudahkan pengelompokan artikel',
+            itemLabel: props => props.value || 'Tag',
+          },
+        ),
         published: fields.checkbox({
           label: 'Published',
           description: 'Centang untuk mempublikasikan artikel. Hapus centang untuk menyimpan sebagai draft.',

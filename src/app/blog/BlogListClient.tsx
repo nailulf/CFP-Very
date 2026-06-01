@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Search, ArrowRight } from 'lucide-react'
+import { Search, ArrowRight, Tag } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 
 const CATEGORIES = ['Semua', 'Manajemen Kekayaan', 'Perencanaan Pajak', 'Investasi', 'Psikologi', 'Pensiun']
@@ -16,6 +16,7 @@ export type BlogPost = {
   category: string
   categoryLabel: string
   coverImage: string | null
+  tags: string[]
 }
 
 export default function BlogListClient({ posts }: { posts: BlogPost[] }) {
@@ -101,9 +102,22 @@ export default function BlogListClient({ posts }: { posts: BlogPost[] }) {
                   <h3 className="text-lg font-semibold text-[#153A56] mb-3 group-hover:text-[#205781] transition-colors line-clamp-2">
                     {post.title}
                   </h3>
-                  <p className="text-[#666666] text-sm mb-6 flex-grow line-clamp-3">
+                  <p className="text-[#666666] text-sm mb-4 flex-grow line-clamp-3">
                     {post.excerpt}
                   </p>
+                  {post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {post.tags.slice(0, 3).map(tag => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 bg-[#F0F7FA] text-[#4F9DA6] text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#E0EBF5]"
+                        >
+                          <Tag size={9} />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <Link
                     href={`/blog/${post.slug}`}
                     className="inline-flex items-center text-[#205781] font-semibold text-sm hover:text-[#4F9DA6] transition-colors mt-auto"

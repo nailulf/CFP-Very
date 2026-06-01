@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Share2, Tag } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { reader, CATEGORY_LABELS, formatDate } from '@/lib/keystatic'
 import { renderMarkdoc } from '@/lib/markdoc-render'
@@ -24,6 +24,7 @@ export async function generateMetadata({
   return {
     title: `${post.title} | CFP Very Blog`,
     description: post.excerpt,
+    keywords: post.tags?.join(', '),
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -31,6 +32,7 @@ export async function generateMetadata({
       publishedTime: post.publishedAt ?? undefined,
       authors: [post.author],
       images: post.coverImage ? [{ url: post.coverImage }] : [],
+      tags: post.tags ? [...post.tags] : [],
     },
   }
 }
@@ -41,12 +43,23 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const post = await reader.collections.blog.read(slug)
+  const [post, authorData] = await Promise.all([
+    reader.collections.blog.read(slug),
+    reader.singletons.author.read(),
+  ])
   if (!post) notFound()
 
   const { node } = await post.content()
   const content = renderMarkdoc(node)
   const categoryLabel = CATEGORY_LABELS[post.category] ?? post.category
+  const tags: string[] = post.tags ? [...post.tags] : []
+
+  const author = {
+    name: authorData?.name ?? post.author,
+    credential: authorData?.credential ?? 'Perencana Keuangan Tersertifikasi (CFP®)',
+    bio: authorData?.bio ?? '',
+    photo: authorData?.photo ? `/images/${authorData.photo}` : '/images/hero.png',
+  }
 
   return (
     <div className="pt-32 pb-20" style={{ background: '#F0F7FA' }}>
@@ -70,10 +83,20 @@ export default async function BlogPostPage({
           )}
 
           <div className="p-8 md:p-12">
-            <div className="flex flex-wrap items-center gap-3 mb-6">
+            {/* Category + tags */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
               <span className="bg-[#E0EBF5] text-[#205781] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                 {categoryLabel}
               </span>
+              {tags.map(tag => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 bg-[#F0F7FA] text-[#4F9DA6] text-xs font-medium px-2.5 py-1 rounded-full border border-[#E0EBF5]"
+                >
+                  <Tag size={10} />
+                  {tag}
+                </span>
+              ))}
             </div>
 
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#153A56] mb-6 leading-tight tracking-tight">
@@ -92,7 +115,9 @@ export default async function BlogPostPage({
                 </div>
               </div>
               <div className="flex gap-3">
-                <button className="text-[#9BAFC0] hover:text-[#666666] transition-colors"><Share2 size={18} /></button>
+                <button className="text-[#9BAFC0] hover:text-[#666666] transition-colors">
+                  <Share2 size={18} />
+                </button>
               </div>
             </div>
 
@@ -102,20 +127,21 @@ export default async function BlogPostPage({
           </div>
         </div>
 
+        {/* Author bio — driven by the Author singleton in Keystatic */}
         <div className="mt-8 bg-white rounded-2xl border border-[#E0EBF5] p-7 flex items-center gap-6">
           <div className="w-16 h-16 rounded-full bg-[#E0EBF5] overflow-hidden shrink-0">
             <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-              alt={post.author}
+              src={author.photo}
+              alt={author.name}
               className="w-full h-full object-cover"
             />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[#153A56]">{post.author}</h3>
-            <p className="text-[#4F9DA6] text-sm mb-1">Perencana Keuangan Tersertifikasi (CFP®)</p>
-            <p className="text-[#666666] text-sm">
-              Aditya membantu profesional dan pemilik bisnis menavigasi lanskap keuangan yang kompleks untuk mencapai kejelasan dan kepercayaan diri di masa depan mereka.
-            </p>
+            <h3 className="text-base font-bold text-[#153A56]">{author.name}</h3>
+            <p className="text-[#4F9DA6] text-sm mb-1">{author.credential}</p>
+            {author.bio && (
+              <p className="text-[#666666] text-sm">{author.bio}</p>
+            )}
           </div>
         </div>
       </Container>
