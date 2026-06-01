@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -25,6 +26,12 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className={`${outfit.variable} font-sans antialiased`}>
         <GoogleAnalytics />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6515526325251643"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
