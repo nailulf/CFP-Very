@@ -6,7 +6,9 @@ import { Container } from '@/components/ui/Container'
 import { reader, CATEGORY_LABELS, formatDate } from '@/lib/keystatic'
 import { renderMarkdoc } from '@/lib/markdoc-render'
 
-export const revalidate = 0
+// Pre-render all published posts at build time.
+// Slugs not in generateStaticParams return 404 immediately (no dynamic fallback).
+export const dynamicParams = false
 
 export async function generateStaticParams() {
   const posts = await reader.collections.blog.all()

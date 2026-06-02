@@ -6,7 +6,9 @@ export const translations = {
       links: [
         { label: 'Layanan', href: '#services' },
         { label: 'Cara Kerja', href: '#how-it-works' },
-        { label: 'Tentang', href: '#about' },
+         { label: 'Blog', href: '/blog' },
+        { label: 'Testimoni', href: '#about' },
+       
       ],
       cta: 'Hubungi Sekarang',
     },
@@ -118,10 +120,10 @@ export const translations = {
         {
           heading: 'Layanan',
           links: [
-            { label: 'Pelatihan Keuangan', href: '/#services' },
+            { label: 'Konsultasi Keuangan', href: '/#services' },
             { label: 'Produk Digital', href: '/#services' },
-            { label: 'Sesi Kelompok', href: '/#services' },
-            { label: 'Cek Kesehatan Keuangan', href: '/financial-health-check' },
+            { label: 'Sesi Pelatihan Kelompok', href: '/#services' },
+            { label: 'Financial Health Check', href: '/financial-health-check' },
           ],
         },
         {
@@ -130,6 +132,7 @@ export const translations = {
             { label: 'Tentang', href: '#about' },
             { label: 'Cara Kerja', href: '#how-it-works' },
             { label: 'Testimoni', href: '#about' },
+            { label: 'Blog', href: '/blog' },
             { label: 'Hubungi Kami', href: 'https://wa.me/6281806484635', external: true },
             { label: 'Kebijakan Privasi', href: '/kebijakan-privasi' },
           ],
@@ -145,6 +148,7 @@ export const translations = {
       links: [
         { label: 'Services', href: '#services' },
         { label: 'How It Works', href: '#how-it-works' },
+        { label: 'Blog', href: '/blog' },
         { label: 'About', href: '#about' },
       ],
       cta: 'Book a Call',
@@ -254,10 +258,10 @@ export const translations = {
         {
           heading: 'Services',
           links: [
-            { label: 'Finance Training', href: '/#services' },
+            { label: 'Finance Consulation', href: '/#services' },
             { label: 'Digital Products', href: '/#services' },
-            { label: 'Group Sessions', href: '/#services' },
-            { label: 'Finance Check', href: '/financial-health-check' },
+            { label: 'Group Training Sessions', href: '/#services' },
+            { label: 'Financial Health Check', href: '/financial-health-check' },
           ],
         },
         {
@@ -266,6 +270,7 @@ export const translations = {
             { label: 'About', href: '#about' },
             { label: 'How It Works', href: '#how-it-works' },
             { label: 'Testimonials', href: '#about' },
+            { label: 'Blog', href: '/blog' },
             { label: 'Contact', href: 'https://wa.me/6281806484635', external: true },
             { label: 'Privacy Policy', href: '/privacy-policy' },
           ],

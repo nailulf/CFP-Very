@@ -1,7 +1,9 @@
 import { reader, CATEGORY_LABELS, formatDate } from '@/lib/keystatic'
 import BlogListClient, { type BlogPost } from './BlogListClient'
 
-export const revalidate = 0
+// Statically generated at build time — content is committed to git,
+// so a redeploy is required to publish new posts regardless.
+export const dynamic = 'force-static'
 
 export default async function BlogPage() {
   const entries = await reader.collections.blog.all()

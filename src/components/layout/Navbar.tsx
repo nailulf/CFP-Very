@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { lang } = useLang();
   const t = translations[lang].navbar;
+  const normalizeHref = (href: string) => (href.startsWith('#') ? `/${href}` : href);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#E0EFF5]">
@@ -39,7 +40,7 @@ export const Navbar: React.FC = () => {
             {t.links.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={normalizeHref(link.href)}
                 className="text-[14px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
               >
                 {link.label}
@@ -72,7 +73,7 @@ export const Navbar: React.FC = () => {
           {t.links.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={normalizeHref(link.href)}
               className="text-[15px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
               onClick={() => setIsOpen(false)}
             >

@@ -9,6 +9,7 @@ import { translations } from '@/lib/translations';
 export const Footer: React.FC = () => {
   const { lang } = useLang();
   const t = translations[lang].footer;
+  const normalizeHref = (href: string) => (href.startsWith('#') ? `/${href}` : href);
 
   return (
     <footer className="bg-[#153A56] pt-12 pb-8 px-5 sm:px-10 lg:px-20">
@@ -42,7 +43,7 @@ export const Footer: React.FC = () => {
                 {col.links.map((link) => (
                   <Link
                     key={link.label}
-                    href={link.href}
+                    href={normalizeHref(link.href)}
                     className="text-[14px] text-[#9C9B99] hover:text-white transition-colors"
                   >
                     {link.label}

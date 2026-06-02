@@ -9,11 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Tell Vercel's bundler to include the Keystatic content directory
-  // in every serverless function. Without this, process.cwd()+'/content/**'
-  // paths are not traced and the reader returns empty results in production.
+  // Include Keystatic content files in every serverless-function bundle so
+  // the reader can access them at runtime (belt-and-suspenders alongside
+  // static generation — covers ISR and any dynamic fallback routes).
   outputFileTracingIncludes: {
-    '/**': ['./content/**/*', './keystatic.config.tsx'],
+    '/blog': ['./content/**/*'],
+    '/blog/[slug]': ['./content/**/*'],
   },
 }
 
