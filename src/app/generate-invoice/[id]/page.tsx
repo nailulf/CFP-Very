@@ -15,7 +15,13 @@ export default async function StoredInvoicePage({
   if (!session) redirect('/generate-invoice/login');
 
   const { id } = await params;
-  const invoice = await getInvoiceById(id);
+  let invoice;
+  try {
+    invoice = await getInvoiceById(id);
+  } catch (err) {
+    console.error('[StoredInvoicePage] getInvoiceById threw:', err);
+    throw err;
+  }
   if (!invoice) notFound();
 
   const initialData: InitialInvoiceData = {

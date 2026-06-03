@@ -245,7 +245,7 @@ export function InvoiceGenerator({
       }
       setSaveStatus('saved');
       if (data.id) {
-        router.push(`/generate-invoice/${data.id}`);
+        router.push('/generate-invoice/list');
       }
     } catch (err) {
       setSaveStatus('error');

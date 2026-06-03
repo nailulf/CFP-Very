@@ -109,6 +109,7 @@ export async function readSheetValues(
   const url = `${SHEETS_API}/${spreadsheetId}/values/${encodeURIComponent(range)}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
   });
   if (!res.ok) {
     throw new Error(
