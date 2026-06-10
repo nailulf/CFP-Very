@@ -13,9 +13,9 @@ export const translations = {
       cta: 'Hubungi Sekarang',
     },
     hero: {
-      badge: 'Teman keuanganmu ada di sini',
+      badge: 'Bestie keuanganmu udah di sini',
       headline: ['Berhenti khawatir.', 'Mulai kelola', 'keuanganmu.'],
-      sub: 'Pelatihan keuangan pribadi, produk digital & sesi 1-on-1 yang benar-benar masuk akal — tanpa jargon membosankan, hanya kejelasan nyata.',
+      sub: 'Pelatihan keuangan pribadi, produk digital & sesi 1-on-1 yang beneran masuk akal — tanpa istilah ribet, biar kamu langsung paham.',
       ctaPrimary: 'Mulai Sekarang',
       ctaSecondary: 'Lihat Produk',
       trust: 'Dipercaya 500+ klien',
@@ -25,10 +25,10 @@ export const translations = {
     services: {
       badge: 'Yang Bisa Saya Lakukan',
       title: ['Tiga cara ambil kendali', 'keuanganmu'],
-      subtitle: 'Pilih yang cocok. Kombinasikan. Atau ambil semuanya.',
+      subtitle: 'Pilih yang pas. Gabungin. Atau sekalian ambil semua.',
       digital: {
         title: 'Produk Digital & Template',
-        description: 'Alat siap pakai untuk peningkatan finansialmu. Planner, tracker & panduan yang dirancang agar benar-benar berguna.',
+        description: 'Alat siap pakai buat glow-up keuanganmu. Planner, tracker & panduan yang dibikin biar beneran kepake.',
         points: ['Planner Siap Pakai', 'Tracker Investasi', 'Unduhan Digital Instan'],
         toolsSuffix: 'template & alat',
         freeSuffix: 'unduhan gratis tersedia',
@@ -48,11 +48,11 @@ export const translations = {
       group: {
         title: ['Sesi Kelompok', 'atau Korporat'],
         description:
-          'Hadirkan kesehatan finansial ke tim Anda dengan sesi korporat yang disesuaikan — dari seminar sekali hingga program multi-sesi. Kerangka praktis yang benar-benar bisa digunakan tim Anda, dibawakan oleh Certified Financial Planner.',
+          'Bawa kebiasaan finansial sehat ke tim Anda lewat sesi korporat yang dirancang khusus — dari seminar sekali jalan hingga program multi-sesi. Materi praktis yang benar-benar bisa langsung dipakai tim Anda, dibawakan oleh Certified Financial Planner.',
         points: [
           'Seminar Kesehatan Keuangan',
           'Program Edukasi Multi-Sesi',
-          'Workshop Korporat yang Disesuaikan',
+          'Workshop Korporat yang Dirancang Khusus',
           'Pemeriksaan Keuangan Karyawan',
         ],
       },
@@ -62,8 +62,8 @@ export const translations = {
       title: ['Cara kerjanya', '(spoiler: sangat mudah)'],
       steps: [
         {
-          title: 'Jadwalkan sesi kenalan',
-          desc: 'Ceritakan situasi keuanganmu (tanpa penghakiman, saya janji)',
+          title: 'Jadwalkan Discovery Call',
+          desc: 'Ceritakan situasi keuanganmu (santai, nggak bakal dihakimi kok)',
         },
         {
           title: 'Dapatkan rencana personal',
@@ -71,16 +71,16 @@ export const translations = {
         },
         {
           title: 'Ambil kendali keuanganmu',
-          desc: 'Jalankan dengan percaya diri. Saya akan ada mendukungmu di setiap langkah!',
+          desc: 'Jalankan dengan percaya diri. Saya bakal dukung kamu di tiap langkah!',
         },
       ],
     },
     socialProof: {
       badge: 'Orang Nyata, Hasil Nyata',
-      title: ['Mereka berkata baik', '(saya bahkan tidak menyuap mereka)'],
+      title: ['Mereka bilang yang baik-baik', '(padahal mereka nggak saya suap, lho)'],
       stats: [
         { value: '+++', label: 'Klien Bahagia', valueColor: '#205781' },
-        { value: 'Rp 5M+', label: 'Uang Terorganisir', valueColor: '#4F9DA6' },
+        { value: 'Rp 5M+', label: 'Dana Tertata', valueColor: '#4F9DA6' },
         { value: '4.9⭐', label: 'Rating Rata-rata', valueColor: '#8AD6C1' },
       ],
       testimonials: [
@@ -108,14 +108,14 @@ export const translations = {
       ],
     },
     finalCTA: {
-      headline: ['Siap untuk akhirnya', 'merasa menguasai keuanganmu?'],
-      sub: ['Mari bangun sistem yang menjaga keuanganmu tetap terorganisir.', 'Jadwalkan sesi kenalan untuk memulai.'],
-      ctaPrimary: 'Jadwalkan Sesi Kenalan',
+      headline: ['Siap akhirnya', 'pegang kendali keuanganmu?'],
+      sub: ['Yuk, bangun sistem yang bikin keuanganmu tetap rapi.', 'Jadwalkan Discovery Call untuk memulai.'],
+      ctaPrimary: 'Jadwalkan Discovery Call',
       ctaSecondary: 'Lihat Produk',
       footnote: 'Tanpa komitmen · Tanpa tekanan · Santai saja ☕',
     },
     footer: {
-      brand: 'Membuat pengelolaan keuangan pribadi jadi menyenangkan, ramah, dan benar-benar berguna. Satu klien pada satu waktu. 💛',
+      brand: 'Bikin urusan keuangan pribadi jadi menyenangkan, ramah, dan beneran berguna. Kami bantu satu per satu. 💛',
       columns: [
         {
           heading: 'Layanan',
