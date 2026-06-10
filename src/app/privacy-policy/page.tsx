@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Privacy Policy — TemanTumbuh',
+  title: 'Privacy Policy',
   description: 'Privacy Policy for temantumbuh.com — how we collect, use, and protect your information.',
 };
 

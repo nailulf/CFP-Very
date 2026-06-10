@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Kebijakan Privasi — TemanTumbuh',
+  title: 'Kebijakan Privasi',
   description: 'Kebijakan Privasi temantumbuh.com — bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi Anda.',
 };
 

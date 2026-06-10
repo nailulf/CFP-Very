@@ -5,7 +5,7 @@ import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
-  title: "Layanan | Aditya Very Cleverina",
+  title: "Layanan",
   description: "Jelajahi layanan perencanaan keuangan kami termasuk konsultasi, template pelacak, dan perencanaan komprehensif.",
 };
 
