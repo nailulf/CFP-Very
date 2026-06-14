@@ -12,11 +12,11 @@ export const LayananKonsultasi: React.FC = () => {
   const { lang } = useLang();
   const t = translations[lang].konsultasi.services;
   return (
-    <section className="bg-[#153A56] py-20">
+    <section className="bg-[#205781] py-20">
       <Container>
         <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-[#8AD6C1] uppercase mb-4">{t.eyebrow}</p>
         <h2 className="text-3xl font-extrabold text-white tracking-[-0.8px] mb-3 max-w-2xl">{t.title}</h2>
-        <p className="text-[#9C9B99] max-w-2xl mb-12">{t.subtitle}</p>
+        <p className="text-white/75 max-w-2xl mb-12">{t.subtitle}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {t.items.map((it, i) => {
             const Icon = ICONS[i];
