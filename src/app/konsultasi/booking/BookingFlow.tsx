@@ -30,6 +30,10 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
 
   const slots = useMemo(() => (form.date ? slotsByDate[form.date] ?? [] : []), [form.date, slotsByDate]);
   const set = (patch: Partial<BookingForm>) => setForm((f) => ({ ...f, ...patch }));
+  const fmtDate = (iso: string) =>
+    new Date(`${iso}T00:00:00`).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
 
   if (!enabled) {
     return (
@@ -44,7 +48,7 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
   }
 
   if (bookingId) {
-    const copy = (val: string) => { navigator.clipboard.writeText(val); setCopied(val); setTimeout(() => setCopied(null), 1500); };
+    const copy = (val: string) => { navigator.clipboard?.writeText(val).catch(() => {}); setCopied(val); setTimeout(() => setCopied(null), 1500); };
     return (
       <Container>
         <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-[#E0EBF5] p-8">
@@ -124,11 +128,11 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
               <p className="text-[12px] text-[#9C9B99] mt-4">{t.timeline.note}</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#E0EBF5] p-6">
-              <label className={label}>{t.schedule.dateLabel}</label>
+              <label className={label} htmlFor="booking-date">{t.schedule.dateLabel}</label>
               {dates.length === 0 ? <p className="text-[14px] text-[#666666]">{t.schedule.empty}</p> : (
-                <select className={input} value={form.date} onChange={(e) => set({ date: e.target.value, timeSlot: '' })}>
+                <select id="booking-date" className={input} value={form.date} onChange={(e) => set({ date: e.target.value, timeSlot: '' })}>
                   <option value="">—</option>
-                  {dates.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {dates.map((d) => <option key={d} value={d}>{fmtDate(d)}</option>)}
                 </select>
               )}
               {form.date && (
@@ -147,12 +151,12 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
 
         {step === 'details' && (
           <div className="bg-white rounded-2xl border border-[#E0EBF5] p-6 flex flex-col gap-4">
-            <div><label className={label}>{t.details.nameLabel}</label><input className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} /></div>
-            <div><label className={label}>{t.details.emailLabel}</label><input type="email" className={input} value={form.email} onChange={(e) => set({ email: e.target.value })} /></div>
-            <div><label className={label}>{t.details.phoneLabel}</label><input className={input} value={form.phone} onChange={(e) => set({ phone: e.target.value })} /></div>
+            <div><label className={label} htmlFor="booking-name">{t.details.nameLabel}</label><input id="booking-name" className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} /></div>
+            <div><label className={label} htmlFor="booking-email">{t.details.emailLabel}</label><input id="booking-email" type="email" className={input} value={form.email} onChange={(e) => set({ email: e.target.value })} /></div>
+            <div><label className={label} htmlFor="booking-phone">{t.details.phoneLabel}</label><input id="booking-phone" className={input} value={form.phone} onChange={(e) => set({ phone: e.target.value })} /></div>
             <div>
-              <label className={label}>{t.details.topicLabel}</label>
-              <textarea className="w-full min-h-[120px] bg-[#F5F8FC] border border-[#CBDCEA] rounded-[10px] p-4 outline-none focus:ring-2 focus:ring-[#f79d35]/40 focus:border-[#f79d35]" value={form.topic} onChange={(e) => set({ topic: e.target.value })} />
+              <label className={label} htmlFor="booking-topic">{t.details.topicLabel}</label>
+              <textarea id="booking-topic" className="w-full min-h-[120px] bg-[#F5F8FC] border border-[#CBDCEA] rounded-[10px] p-4 outline-none focus:ring-2 focus:ring-[#f79d35]/40 focus:border-[#f79d35]" value={form.topic} onChange={(e) => set({ topic: e.target.value })} />
               <p className="text-[11px] text-[#9BAFC0] mt-1">{t.details.topicHint}</p>
             </div>
           </div>
@@ -162,7 +166,7 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
           <div className="bg-white rounded-2xl border border-[#E0EBF5] p-6">
             <h2 className="font-extrabold text-[#1A1918] text-xl mb-4">{t.confirm.title}</h2>
             <dl className="flex flex-col gap-2 text-[14px]">
-              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryDate}</dt><dd className="font-semibold text-[#1A1918]">{form.date}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryDate}</dt><dd className="font-semibold text-[#1A1918]">{fmtDate(form.date)}</dd></div>
               <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryTime}</dt><dd className="font-semibold text-[#1A1918]">{form.timeSlot} WIB</dd></div>
               <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryName}</dt><dd className="font-semibold text-[#1A1918]">{form.name}</dd></div>
               <div className="flex justify-between gap-6"><dt className="text-[#666666] shrink-0">{t.confirm.summaryTopic}</dt><dd className="text-[#1A1918] text-right">{form.topic}</dd></div>
