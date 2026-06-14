@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 
 interface Cta {
@@ -16,11 +17,27 @@ interface ServiceInfoCardProps {
   description: string;
   points: string[];
   cta?: Cta;
+  /** When set, clicking anywhere on the card (outside the CTA) navigates here. */
+  cardHref?: string;
 }
 
-export const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ iconBg, Icon, title, description, points, cta }) => {
+export const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ iconBg, Icon, title, description, points, cta, cardHref }) => {
+  const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
-  const cardClass = "flex-1 relative flex flex-col gap-5 p-8 rounded-[20px] bg-white border border-[#E5E4E1]";
+  const cardClass = `flex-1 relative flex flex-col gap-5 p-8 rounded-[20px] bg-white border border-[#E5E4E1]${cardHref ? ' cursor-pointer' : ''}`;
+  const cardNav = cardHref
+    ? {
+        role: 'link' as const,
+        tabIndex: 0,
+        onClick: () => router.push(cardHref),
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            router.push(cardHref);
+          }
+        },
+      }
+    : {};
   const cardStyle: React.CSSProperties = {
     transform: isHovered ? 'translateY(-8px) scale(1.06)' : 'translateY(0) scale(1)',
     boxShadow: isHovered ? '0 24px 48px rgba(0, 0, 0, 0.28)' : '0 0 0 rgba(0, 0, 0, 0)',
@@ -45,7 +62,7 @@ export const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ iconBg, Icon, 
   const shownDescription = shouldTruncateDescription ? `${description.slice(0, DESCRIPTION_MAX_CHARS)}…` : description;
 
   return (
-    <div className={cardClass} style={cardStyle} {...hoverProps}>
+    <div className={cardClass} style={cardStyle} {...hoverProps} {...cardNav}>
       <div className="flex items-start gap-4">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconBg }}>
           <Icon className="w-7 h-7 text-white" />
@@ -62,7 +79,7 @@ export const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ iconBg, Icon, 
             <button
               type="button"
               className="text-[13px] font-semibold text-[#205781] hover:underline"
-              onClick={() => setIsDescriptionExpanded((v) => !v)}
+              onClick={(e) => { e.stopPropagation(); setIsDescriptionExpanded((v) => !v); }}
             >
               {isDescriptionExpanded ? 'Read less' : 'Read more'}
             </button>

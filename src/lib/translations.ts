@@ -44,7 +44,7 @@ export const translations = {
           'Perencanaan Dana Darurat & Perlindungan',
           'Perencanaan Pensiun & Berbasis Tujuan',
         ],
-        cta: 'Pelajari Konsultasi',
+        cta: 'Financial Health Check',
       },
       group: {
         title: ['Sesi Kelompok', 'atau Korporat'],
@@ -296,7 +296,7 @@ export const translations = {
           'Emergency Fund & Protection Planning',
           'Retirement & Goal-Based Planning',
         ],
-        cta: 'Learn About Consultation',
+        cta: 'Financial Health Check',
       },
       group: {
         title: ['Group or Corporate', 'Sessions'],
