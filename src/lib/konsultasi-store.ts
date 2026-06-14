@@ -1,5 +1,6 @@
 import 'server-only';
 import { appendSheetRow, getSheetRowCount } from './google-sheets';
+import { sanitizeCell } from './sheets-sanitize';
 
 export const HEADERS = [
   'Timestamp',
@@ -40,12 +41,12 @@ export async function appendBooking(b: NewBooking): Promise<void> {
   await appendSheetRow(sheetId, range, [
     timestamp,
     b.bookingId,
-    b.name,
-    b.email,
-    b.phone || '-',
+    sanitizeCell(b.name),
+    sanitizeCell(b.email),
+    sanitizeCell(b.phone || '-'),
     b.date,
     b.timeSlot,
-    b.topic,
+    sanitizeCell(b.topic),
     'Pending',
     '',
   ]);

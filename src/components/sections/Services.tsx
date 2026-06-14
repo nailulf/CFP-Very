@@ -40,7 +40,7 @@ export const Services: React.FC = () => {
             title={<>{t.consultation.title[0]}<br />{t.consultation.title[1]}</>}
             description={t.consultation.description}
             points={t.consultation.points}
-            cta={{ label: 'Pelajari Konsultasi', href: '/konsultasi' }}
+            cta={{ label: t.consultation.cta, href: '/konsultasi' }}
           />
 
           <ServiceInfoCard
