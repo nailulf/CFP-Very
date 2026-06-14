@@ -19,11 +19,11 @@ export const KonsultasiFAQ: React.FC = () => {
             const isOpen = open === i;
             return (
               <div key={item.q} className="bg-white rounded-2xl border border-[#E0EBF5] overflow-hidden">
-                <button type="button" onClick={() => setOpen(isOpen ? null : i)} className="w-full flex items-center justify-between gap-4 p-5 text-left">
+                <button type="button" onClick={() => setOpen(isOpen ? null : i)} aria-expanded={isOpen} aria-controls={`faq-panel-${i}`} className="w-full flex items-center justify-between gap-4 p-5 text-left">
                   <span className="font-semibold text-[15px] text-[#1A1918]">{item.q}</span>
                   <ChevronDown className={`w-5 h-5 text-[#205781] shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {isOpen && <p className="px-5 pb-5 text-[14px] text-[#666666] leading-relaxed">{item.a}</p>}
+                {isOpen && <p id={`faq-panel-${i}`} className="px-5 pb-5 text-[14px] text-[#666666] leading-relaxed">{item.a}</p>}
               </div>
             );
           })}

@@ -2,7 +2,6 @@
 import React from 'react';
 import { ClipboardCheck, Flag, Route, FileText } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
-import { SectionHeader } from '@/components/ui/SectionHeader';
 import { useLang } from '@/lib/lang-context';
 import { translations } from '@/lib/translations';
 
@@ -14,7 +13,9 @@ export const BagaimanaKamiMembantu: React.FC = () => {
   return (
     <section className="bg-[#F0F7FA] py-20">
       <Container>
-        <SectionHeader badgeVariant="light" title={<span className="text-[#1A1918]">{t.title}</span>} subtitle={t.subtitle} />
+        <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-[#205781] uppercase mb-4">{t.eyebrow}</p>
+        <h2 className="text-3xl font-extrabold text-[#1A1918] tracking-[-0.8px] mb-3 max-w-2xl">{t.title}</h2>
+        <p className="text-[#666666] max-w-2xl">{t.subtitle}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
           {t.items.map((it, i) => {
             const Icon = ICONS[i];
