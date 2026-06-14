@@ -12,9 +12,9 @@ export const KonsultasiFAQ: React.FC = () => {
   return (
     <section className="bg-[#F0F7FA] py-20">
       <Container>
-        <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-[#205781] uppercase mb-4">{t.eyebrow}</p>
-        <h2 className="text-3xl font-extrabold text-[#1A1918] tracking-[-0.8px] mb-10">{t.title}</h2>
-        <div className="flex flex-col gap-3 max-w-3xl">
+        <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-[#205781] uppercase mb-4 text-center">{t.eyebrow}</p>
+        <h2 className="text-3xl font-extrabold text-[#1A1918] tracking-[-0.8px] mb-10 text-center">{t.title}</h2>
+        <div className="flex flex-col gap-3 max-w-3xl mx-auto">
           {t.items.map((item, i) => {
             const isOpen = open === i;
             return (
