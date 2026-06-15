@@ -3,14 +3,20 @@ export type Lang = 'id' | 'en';
 export const translations = {
   id: {
     navbar: {
+      servicesMenu: {
+        label: 'Layanan',
+        items: [
+          { label: 'Template Keuangan / Produk Digital', href: '/#services' },
+          { label: 'Konsultasi Keuangan Pribadi', href: '/konsultasi' },
+          { label: 'Corporate Training', href: '/korporat' },
+        ],
+      },
       links: [
-        { label: 'Layanan', href: '#services' },
         { label: 'Cara Kerja', href: '#how-it-works' },
-         { label: 'Blog', href: '/blog' },
+        { label: 'Blog', href: '/blog' },
         { label: 'Testimoni', href: '#about' },
-       
       ],
-      cta: 'Hubungi Sekarang',
+      cta: 'Contact Us',
     },
     hero: {
       badge: 'Bestie keuanganmu udah di sini',
@@ -56,6 +62,7 @@ export const translations = {
           'Workshop Korporat yang Dirancang Khusus',
           'Pemeriksaan Keuangan Karyawan',
         ],
+        cta: 'Selengkapnya',
       },
     },
     howItWorks: {
@@ -191,10 +198,10 @@ export const translations = {
         items: [
           { q: 'Apa itu perencanaan keuangan?', a: 'Perencanaan keuangan adalah proses menata pengelolaan keuangan secara tepat dan terarah untuk mencapai tujuan hidupmu atau keluargamu. Prosesnya mencakup penyusunan dan penerapan rencana keuangan yang dibuat khusus, karena kondisi dan tujuan setiap orang berbeda.' },
           { q: 'Berapa biaya konsultasi keuangan?', a: 'Biaya disesuaikan dengan tahap hidup dan kompleksitas situasi keuanganmu. Paket Starter Rp500.000 (fresh graduate/single, 1 sesi 90 menit). Paket Family Rp1.000.000 (pasangan/keluarga muda, proses 2–3 minggu). Paket Comprehensive Rp2.000.000 (mapan/kompleks, proses ±1 bulan).' },
-          { q: 'Berapa banyak sesi konsultasi yang dijalani?', a: 'Ada 2 sesi: initial meeting dan recommendation meeting.' },
-          { q: 'Bagaimana timeline konsultasinya?', a: 'Minggu 1 — Initial Meeting. Minggu 2 — Penyampaian Data Keuangan. Minggu 3 — Recommendation Meeting.' },
+          { q: 'Berapa banyak sesi konsultasi yang dijalani?', a: 'Ada 2 sesi: Discovery meeting dan recommendation meeting.' },
+          { q: 'Bagaimana timeline konsultasinya?', a: 'Minggu 1 — Discovery Meeting. Minggu 2 — Penyampaian Data Keuangan. Minggu 3 — Recommendation Meeting.' },
           { q: 'Apakah konsultasi bisa bersama pasangan?', a: 'Bisa, sendiri maupun bersama pasangan, selama sesuai durasi dan layanan yang dipilih.' },
-          { q: 'Bagaimana cara membeli jasa konsultasi secara online?', a: 'Daftar lewat halaman ini, pilih jadwal yang tersedia, isi datamu, pilih metode pembayaran, lalu kamu akan menerima email konfirmasi jadwal initial meeting. Usahakan hadir 5 menit sebelum sesi.' },
+          { q: 'Bagaimana cara membeli jasa konsultasi secara online?', a: 'Daftar lewat halaman ini, pilih jadwal yang tersedia, isi datamu, pilih metode pembayaran, lalu kamu akan menerima email konfirmasi jadwal Discovery meeting. Usahakan hadir 5 menit sebelum sesi.' },
           { q: 'Kapan saja jadwal konsultasi tersedia?', a: 'Setiap hari, Senin–Minggu, pukul 09.00–20.00 WIB.' },
           { q: 'Apakah pembayaran bisa dicicil?', a: 'Untuk saat ini pembayaran belum bisa dicicil dan dilakukan penuh di awal.' },
           { q: 'Apakah bisa refund?', a: 'Refund bisa diajukan paling lambat H-2 sebelum jadwal, dengan pengembalian maksimal 50%. Jika konsultasi sudah berlangsung, refund tidak dapat dilakukan.' },
@@ -252,12 +259,119 @@ export const translations = {
         back: 'Kembali',
       },
     },
+    korporat: {
+      meta: {
+        title: 'Corporate Training & Employee Financial Wellness',
+        description:
+          'Program in-house training keuangan untuk karyawan — dibawakan oleh Perencana Keuangan bersertifikasi CFP®, dengan materi yang ringan, relevan, dan bisa langsung dipraktikkan.',
+      },
+      hero: {
+        eyebrow: 'IN-HOUSE TRAINING & EMPLOYEE FINANCIAL WELLNESS',
+        title: 'Tingkatkan Kesejahteraan Karyawan lewat Akselerasi Literasi Finansial',
+        subtitle:
+          'Karyawan yang tenang soal keuangan cenderung lebih fokus, produktif, dan loyal. Lewat program in-house training TemanTumbuh, kami bantu timmu memahami uang dengan cara yang ringan, relevan, dan bisa langsung dipraktikkan.',
+        cta: 'Hubungi Kami',
+        badges: [
+          'Mendorong employee engagement',
+          'Trainer bersertifikasi resmi CFP®',
+          'Topik disesuaikan kebutuhan',
+          'Materi relevan & aplikatif',
+        ],
+      },
+      why: {
+        eyebrow: 'MENGAPA PENTING',
+        title: 'Mengapa Financial Wellness Penting?',
+        subtitle: 'Karyawan yang sehat secara finansial adalah aset yang lebih produktif dan loyal.',
+        stats: [
+          { value: '78%', label: 'karyawan merasa stres soal keuangan' },
+          { value: '3 jam', label: 'per minggu hilang akibat stres finansial di tempat kerja' },
+          { value: '2,5×', label: 'lebih loyal — karyawan yang merasa sejahtera secara finansial' },
+          { value: '↑40%', label: 'produktivitas meningkat dengan program financial wellness' },
+        ],
+        note: 'Angka-angka di atas merupakan ringkasan dari berbagai riset corporate financial wellness global (PwC, EY, MetLife). Konteks Indonesia bisa bervariasi, tapi polanya umumnya konsisten.',
+      },
+      topics: {
+        eyebrow: 'TOPIK PROGRAM',
+        title: 'Topik Program Training Kami',
+        subtitle:
+          'Setiap materi kami susun lewat riset mendalam dan dibawakan oleh trainer bersertifikasi CFP®, dengan gaya penyampaian yang ringan dan interaktif — bukan presentasi satu arah.',
+        items: [
+          { title: 'Manajemen Keuangan Pribadi Karyawan', desc: 'Materi disampaikan dengan bahasa yang mudah dipahami dan langsung bisa diterapkan. Ringan, interaktif, dan engaging, supaya karyawan benar-benar terbawa sampai akhir sesi.' },
+          { title: 'Perencanaan Keuangan Menuju Pensiun', desc: 'Mencakup studi kasus dan strategi persiapan pensiun yang kami riset secara mendalam, supaya karyawanmu bisa merencanakan masa pensiun dengan lebih tenang dan terarah.' },
+          { title: 'Edukasi Investasi untuk Karyawan', desc: 'Materi investasi kami dirancang inklusif dan ramah pemula. Kami percaya semua orang bisa mulai berinvestasi untuk mencapai tujuan keuangannya, apa pun titik awalnya.' },
+          { title: 'Cegah Jeratan Pinjaman Online & Judi Online', desc: 'Topik yang sering dianggap tabu ini kami bahas secara rinci, aktual, dan transparan, dengan penyampaian yang membuka mata sekaligus memberdayakan.' },
+        ],
+      },
+      more: {
+        eyebrow: 'TOPIK LAINNYA',
+        title: 'Topik Materi Lainnya',
+        subtitle: 'Disesuaikan dengan profil karyawan dan objektif HR/L&D.',
+        groups: [
+          {
+            title: 'Financial Wellness',
+            audience: 'Untuk semua level karyawan',
+            items: [
+              'Mengelola gaji dengan bijak',
+              'Perencanaan keuangan untuk young professional',
+              'Kebebasan finansial untuk generasi milenial',
+              'Mengelola uang tanpa stres',
+            ],
+          },
+          {
+            title: 'Financial Planning',
+            audience: 'Teknikal & praktis',
+            items: [
+              'Budgeting & manajemen arus kas',
+              'Perencanaan dana darurat & asuransi',
+              'Investasi untuk pemula',
+              'Dasar perencanaan pensiun',
+            ],
+          },
+          {
+            title: 'Family Finance',
+            audience: 'Untuk working parents & karyawan senior',
+            items: [
+              'Perencanaan keuangan untuk orang tua bekerja',
+              'Persiapan dana pensiun yang mapan',
+              'Perencanaan dana pendidikan anak',
+              'Gaya hidup finansial yang berkelanjutan',
+            ],
+          },
+        ],
+        format: 'Format penyampaian ideal: 40% materi · 30% studi kasus · 30% Q&A — bukan presentasi satu arah.',
+      },
+      faq: {
+        eyebrow: 'FAQ',
+        title: 'Pertanyaan yang Sering Ditanyakan',
+        items: [
+          { q: 'Apa itu program in-house training TemanTumbuh?', a: 'Program edukasi finansial yang kami bawakan langsung untuk karyawan di perusahaanmu, baik secara tatap muka maupun online. Materinya kami sesuaikan dengan profil karyawan dan tujuan tim HR/L&D, supaya benar-benar relevan dengan kebutuhan timmu.' },
+          { q: 'Apakah materinya bisa disesuaikan dengan kebutuhan perusahaan kami?', a: 'Bisa. Sebelum sesi, kami diskusi dulu bareng tim HR untuk memahami profil karyawan dan objektif yang ingin dicapai. Dari situ, kami susun materi yang paling pas, jadi bukan paket seragam untuk semua perusahaan.' },
+          { q: 'Siapa yang akan membawakan trainingnya?', a: 'Sesi dibawakan oleh Perencana Keuangan bersertifikasi CFP®, sehingga materi yang disampaikan kredibel dan teruji, namun tetap dikemas ringan dan mudah dicerna.' },
+          { q: 'Berapa lama durasi satu sesi training?', a: 'Durasi fleksibel dan bisa disesuaikan, mulai dari webinar singkat satu sesi hingga rangkaian education series. Kami bantu rekomendasikan format yang paling sesuai dengan kebutuhan dan ketersediaan waktu timmu.' },
+          { q: 'Apakah training bisa dilakukan secara online?', a: 'Bisa. Program dapat dijalankan secara online, offline (on-site), maupun hybrid, menyesuaikan kondisi dan preferensi perusahaanmu.' },
+          { q: 'Berapa jumlah peserta yang ideal dalam satu sesi?', a: 'Jumlah peserta cukup fleksibel. Kami bisa menyesuaikan pendekatan baik untuk kelompok kecil maupun audiens dalam jumlah besar, sambil menjaga sesi tetap interaktif.' },
+          { q: 'Bagaimana cara mengajukan program in-house training?', a: 'Cukup hubungi kami lewat WhatsApp di +62 818-0648-4635, lalu ceritakan kebutuhan timmu. Kami akan bantu menyusun proposal program beserta rekomendasi topik, silabus, dan formatnya.' },
+        ],
+      },
+      finalCta: {
+        title: 'Siap tingkatkan financial wellness timmu?',
+        subtitle: 'Ceritakan kebutuhan timmu, dan kami bantu susun proposal program beserta rekomendasi topik, silabus, dan formatnya.',
+        button: 'Hubungi Kami',
+      },
+    },
   },
 
   en: {
     navbar: {
+      servicesMenu: {
+        label: 'Services',
+        items: [
+          { label: 'Financial Templates / Digital Products', href: '/#services' },
+          { label: 'Personal Financial Consultation', href: '/konsultasi' },
+          { label: 'Corporate Training', href: '/korporat' },
+        ],
+      },
       links: [
-        { label: 'Services', href: '#services' },
         { label: 'How It Works', href: '#how-it-works' },
         { label: 'Blog', href: '/blog' },
         { label: 'About', href: '#about' },
@@ -308,6 +422,7 @@ export const translations = {
           'Customized Corporate Workshops',
           'Employee Financial Check-Up',
         ],
+        cta: 'Learn More',
       },
     },
     howItWorks: {
@@ -440,10 +555,10 @@ export const translations = {
         items: [
           { q: 'What is financial planning?', a: 'Financial planning is the process of organizing your finances in a precise and purposeful way to achieve your or your family’s life goals. The process involves building and implementing a tailored financial plan, because everyone’s situation and goals are different.' },
           { q: 'How much does a financial consultation cost?', a: 'The fee is matched to your life stage and the complexity of your financial situation. Starter package Rp500,000 (fresh graduate/single, one 90-minute session). Family package Rp1,000,000 (couples/young families, 2–3 week process). Comprehensive package Rp2,000,000 (established/complex, around 1 month process).' },
-          { q: 'How many consultation sessions are involved?', a: 'There are 2 sessions: an initial meeting and a recommendation meeting.' },
-          { q: 'What is the consultation timeline?', a: 'Week 1 — Initial Meeting. Week 2 — Submitting Financial Data. Week 3 — Recommendation Meeting.' },
+          { q: 'How many consultation sessions are involved?', a: 'There are 2 sessions: an discovery meeting and a recommendation meeting.' },
+          { q: 'What is the consultation timeline?', a: 'Week 1 — Discovery Meeting. Week 2 — Submitting Financial Data. Week 3 — Recommendation Meeting.' },
           { q: 'Can the consultation be done together with my partner?', a: 'Yes, alone or together with your partner, as long as it fits the duration and service you choose.' },
-          { q: 'How do I purchase the consultation service online?', a: 'Sign up through this page, pick an available time, fill in your details, choose a payment method, then you will receive an email confirming the initial meeting schedule. Please try to arrive 5 minutes before the session.' },
+          { q: 'How do I purchase the consultation service online?', a: 'Sign up through this page, pick an available time, fill in your details, choose a payment method, then you will receive an email confirming the discovery meeting schedule. Please try to arrive 5 minutes before the session.' },
           { q: 'When are consultation slots available?', a: 'Every day, Monday–Sunday, from 9:00 AM to 8:00 PM WIB.' },
           { q: 'Can the payment be paid in installments?', a: 'For now, payment cannot be made in installments and must be paid in full upfront.' },
           { q: 'Is a refund possible?', a: 'A refund can be requested no later than 2 days before the scheduled session, with a maximum of 50% returned. Once the consultation has taken place, a refund is not possible.' },
@@ -499,6 +614,106 @@ export const translations = {
         },
         next: 'Next',
         back: 'Back',
+      },
+    },
+    korporat: {
+      meta: {
+        title: 'Corporate Training & Employee Financial Wellness',
+        description:
+          'In-house financial training for employees — delivered by certified CFP® Financial Planners, with material that is light, relevant, and immediately practical.',
+      },
+      hero: {
+        eyebrow: 'IN-HOUSE TRAINING & EMPLOYEE FINANCIAL WELLNESS',
+        title: 'Boost Employee Wellbeing by Accelerating Financial Literacy',
+        subtitle:
+          'Employees who feel at ease about money tend to be more focused, productive, and loyal. Through TemanTumbuh’s in-house training, we help your team understand money in a way that’s light, relevant, and immediately practical.',
+        cta: 'Request a Training Program',
+        badges: [
+          'Boosts employee engagement',
+          'Officially certified CFP® trainers',
+          'Topics tailored to your needs',
+          'Relevant & practical material',
+        ],
+      },
+      why: {
+        eyebrow: 'WHY IT MATTERS',
+        title: 'Why Does Financial Wellness Matter?',
+        subtitle: 'Financially healthy employees are more productive and loyal assets.',
+        stats: [
+          { value: '78%', label: 'of employees feel stressed about money' },
+          { value: '3 hrs', label: 'lost per week due to financial stress at work' },
+          { value: '2.5×', label: 'more loyal — employees who feel financially secure' },
+          { value: '↑40%', label: 'productivity boost with a financial wellness program' },
+        ],
+        note: 'The figures above summarize various global corporate financial wellness studies (PwC, EY, MetLife). The Indonesian context may vary, but the patterns are generally consistent.',
+      },
+      topics: {
+        eyebrow: 'TRAINING TOPICS',
+        title: 'Our Training Program Topics',
+        subtitle:
+          'Every module is built on in-depth research and delivered by certified CFP® trainers, with a light, interactive style — never a one-way presentation.',
+        items: [
+          { title: 'Employee Personal Finance Management', desc: 'Delivered in plain language that’s easy to grasp and ready to apply. Light, interactive, and engaging, so employees stay with it all the way to the end of the session.' },
+          { title: 'Financial Planning Toward Retirement', desc: 'Includes deeply researched case studies and retirement preparation strategies, so your employees can plan for retirement with more peace of mind and direction.' },
+          { title: 'Investment Education for Employees', desc: 'Our investment material is designed to be inclusive and beginner-friendly. We believe everyone can start investing to reach their financial goals, whatever their starting point.' },
+          { title: 'Avoiding the Online Loan & Online Gambling Trap', desc: 'This often-taboo topic is covered in detail, up to date, and transparently — delivered in a way that’s eye-opening and empowering.' },
+        ],
+      },
+      more: {
+        eyebrow: 'MORE TOPICS',
+        title: 'Additional Topics',
+        subtitle: 'Tailored to your employee profile and HR/L&D objectives.',
+        groups: [
+          {
+            title: 'Financial Wellness',
+            audience: 'For employees at every level',
+            items: [
+              'Managing your salary wisely',
+              'Financial planning for young professionals',
+              'Financial freedom for the millennial generation',
+              'Managing money without stress',
+            ],
+          },
+          {
+            title: 'Financial Planning',
+            audience: 'Technical & practical',
+            items: [
+              'Budgeting & cash flow management',
+              'Emergency fund & insurance planning',
+              'Investing for beginners',
+              'Retirement planning basics',
+            ],
+          },
+          {
+            title: 'Family Finance',
+            audience: 'For working parents & senior employees',
+            items: [
+              'Financial planning for working parents',
+              'Preparing a solid retirement fund',
+              'Education fund planning for children',
+              'A sustainable financial lifestyle',
+            ],
+          },
+        ],
+        format: 'Ideal delivery format: 40% material · 30% case studies · 30% Q&A — not a one-way presentation.',
+      },
+      faq: {
+        eyebrow: 'FAQ',
+        title: 'Frequently Asked Questions',
+        items: [
+          { q: 'What is TemanTumbuh’s in-house training program?', a: 'A financial education program we deliver directly to employees at your company, either in person or online. The material is tailored to your employee profile and the goals of your HR/L&D team, so it’s genuinely relevant to your team’s needs.' },
+          { q: 'Can the material be tailored to our company’s needs?', a: 'Yes. Before the session, we discuss with your HR team to understand the employee profile and the objectives you want to achieve. From there we build the most fitting material — not a one-size-fits-all package.' },
+          { q: 'Who will deliver the training?', a: 'Sessions are led by certified CFP® Financial Planners, so the material is credible and proven, yet still delivered in a way that’s light and easy to digest.' },
+          { q: 'How long is one training session?', a: 'Duration is flexible and adjustable — from a short single-session webinar to a full education series. We’ll help recommend the format that best fits your team’s needs and availability.' },
+          { q: 'Can the training be held online?', a: 'Yes. The program can run online, offline (on-site), or hybrid, adapting to your company’s situation and preferences.' },
+          { q: 'What is the ideal number of participants per session?', a: 'The participant count is quite flexible. We can adapt our approach for small groups or large audiences, while keeping the session interactive.' },
+          { q: 'How do we request an in-house training program?', a: 'Simply reach us via WhatsApp at +62 818-0648-4635 and tell us what your team needs. We’ll help craft a program proposal with recommended topics, syllabus, and format.' },
+        ],
+      },
+      finalCta: {
+        title: 'Ready to boost your team’s financial wellness?',
+        subtitle: 'Tell us what your team needs, and we’ll help craft a program proposal with recommended topics, syllabus, and format.',
+        button: 'Request a Program via WhatsApp',
       },
     },
   },

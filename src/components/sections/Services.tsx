@@ -50,7 +50,8 @@ export const Services: React.FC = () => {
             title={<>{t.group.title[0]}<br />{t.group.title[1]}</>}
             description={t.group.description}
             points={t.group.points}
-            cta={{ label: 'Contact Us', href: 'https://wa.me/6281806484635?text=Halo%2C+saya+tertarik+dengan+layanan+Group+or+Corporate+Sessions', external: true }}
+            cardHref="/korporat"
+            cta={{ label: t.group.cta, href: '/korporat' }}
           />
         </div>
       </div>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { useLang } from '@/lib/lang-context';
@@ -11,6 +11,8 @@ import { translations } from '@/lib/translations';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const { lang } = useLang();
   const t = translations[lang].navbar;
   const normalizeHref = (href: string) => (href.startsWith('#') ? `/${href}` : href);
@@ -37,6 +39,40 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
+            {/* Services dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 text-[14px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
+                aria-expanded={servicesOpen}
+                aria-haspopup="true"
+                onClick={() => setServicesOpen((v) => !v)}
+              >
+                {t.servicesMenu.label}
+                <ChevronDown size={15} className={`transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {servicesOpen && (
+                <div className="absolute left-0 top-full pt-3">
+                  <div className="w-64 rounded-2xl border border-[#E0EFF5] bg-white p-2 shadow-[0_12px_32px_rgba(0,0,0,0.10)]">
+                    {t.servicesMenu.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="block rounded-xl px-4 py-3 text-[14px] font-medium text-[#6D6C6A] hover:bg-[#F0F7FA] hover:text-[#205781] transition-colors"
+                        onClick={() => setServicesOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {t.links.map((link) => (
               <Link
                 key={link.href}
@@ -70,6 +106,33 @@ export const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-[#E0EFF5] px-5 py-6 flex flex-col gap-5">
+          {/* Services group */}
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              className="inline-flex items-center justify-between text-[15px] font-medium text-[#6D6C6A] hover:text-[#1A1918] transition-colors"
+              aria-expanded={mobileServicesOpen}
+              onClick={() => setMobileServicesOpen((v) => !v)}
+            >
+              {t.servicesMenu.label}
+              <ChevronDown size={18} className={`transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {mobileServicesOpen && (
+              <div className="flex flex-col gap-3 pl-4 border-l-2 border-[#E0EFF5]">
+                {t.servicesMenu.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-[14px] font-medium text-[#6D6C6A] hover:text-[#205781] transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           {t.links.map((link) => (
             <Link
               key={link.href}

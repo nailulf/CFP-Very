@@ -47,10 +47,10 @@ const stats: StatCardProps[] = [
 
 const testimonials: TestimonialCardProps[] = [
   {
-    quote: "I went from 'Where does my money go?' to actually having a system. Aditya makes finance feel like a conversation with a smart friend.",
-    name: 'Berlian K.',
-    role: 'Working Mom',
-    initials: 'BK',
+    quote: "Meeting pertama dengan Mba Very, sangat nyaman dan merasa sangat didengarkan tanpa judgement. Sangat informatif dan ga pelit ilmu. Laporan yang didapat juga sangat detail dan beyond our expectations. Thank you Mba Very ✨",
+    name: 'Anonim',
+    role: 'Ibu Rumah Tangga',
+    initials: 'RA',
   },
   {
     quote: 'The group session was SO fun! I learned more in 2 hours than months of reading finance blogs. Plus, Aditya\'s energy is contagious.',
