@@ -2,7 +2,8 @@ import React from 'react';
 import { Metadata } from 'next';
 import BookingFlow from './BookingFlow';
 import { BOOKING_AVAILABILITY } from '@/lib/booking-availability';
-import { getSelectableDates, getSlotsForDate } from './lib/availability';
+import { getSelectableDates } from './lib/availability';
+import { getFreeSlotsByDate } from '@/lib/konsultasi-availability';
 import { getPaymentDisplay } from '@/lib/konsultasi-payment';
 
 export const metadata: Metadata = {
@@ -12,11 +13,11 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'; // dates depend on "today"
 
-export default function BookingPage() {
+export default async function BookingPage() {
   const today = new Date();
   const dates = getSelectableDates(BOOKING_AVAILABILITY, today);
-  const slotsByDate: Record<string, string[]> = {};
-  for (const d of dates) slotsByDate[d] = getSlotsForDate(BOOKING_AVAILABILITY, d);
+  // Only slots that are still open (not already booked or calendar-busy).
+  const slotsByDate = await getFreeSlotsByDate(BOOKING_AVAILABILITY, dates);
 
   return (
     <main className="bg-[#F0F7FA] min-h-screen pt-32 pb-20">

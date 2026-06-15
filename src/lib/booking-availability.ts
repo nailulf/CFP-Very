@@ -24,9 +24,9 @@ export type BookingAvailability = {
 export const BOOKING_AVAILABILITY: BookingAvailability = {
   enabled: true,
   timezone: 'Asia/Jakarta',
-  weekdays: [0, 1, 2, 3, 4, 5, 6],
+  weekdays: [ 1, 3, 4, 5, 6],
   startHour: 9,
-  endHour: 20,
+  endHour: 15,
   slotMinutes: 60,
   leadTimeDays: 2,
   horizonDays: 30,

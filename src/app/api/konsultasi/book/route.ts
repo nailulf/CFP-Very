@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { BOOKING_AVAILABILITY } from '@/lib/booking-availability';
-import { isValidSlot } from '@/app/konsultasi/booking/lib/availability';
+import { isSlotAvailable } from '@/lib/konsultasi-availability';
 import { appendBooking } from '@/lib/konsultasi-store';
+import { createBookingEvent } from '@/lib/google-calendar';
+import { KONSULTASI_PACKAGE_IDS, getKonsultasiPackage } from '@/lib/konsultasi-packages';
 
 const schema = z.object({
+  packageId: z.enum(KONSULTASI_PACKAGE_IDS),
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().optional(),
@@ -25,9 +28,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Invalid form data' }, { status: 400 });
     }
 
-    const { name, email, phone, date, timeSlot, topic } = parsed.data;
+    const { packageId, name, email, phone, date, timeSlot, topic } = parsed.data;
 
-    if (!isValidSlot(BOOKING_AVAILABILITY, date, timeSlot, new Date())) {
+    const pkg = getKonsultasiPackage(packageId);
+    if (!pkg) {
+      return NextResponse.json({ success: false, message: 'Paket tidak valid.' }, { status: 400 });
+    }
+
+    if (!(await isSlotAvailable(BOOKING_AVAILABILITY, date, timeSlot, new Date()))) {
       return NextResponse.json(
         { success: false, message: 'Jadwal yang dipilih sudah tidak tersedia.' },
         { status: 400 },
@@ -35,9 +43,40 @@ export async function POST(request: Request) {
     }
 
     const bookingId = makeBookingId(new Date());
-    await appendBooking({ bookingId, name, email, phone: phone ?? '', date, timeSlot, topic });
+    await appendBooking({
+      bookingId,
+      name,
+      email,
+      phone: phone ?? '',
+      date,
+      timeSlot,
+      topic,
+      service: pkg.service,
+      amount: pkg.amount,
+    });
 
-    return NextResponse.json({ success: true, bookingId });
+    // Best-effort: create the calendar event + Meet link + client invite. The
+    // booking is already recorded, so a calendar failure must not fail the request.
+    const event = await createBookingEvent({
+      date,
+      time: timeSlot,
+      durationMinutes: BOOKING_AVAILABILITY.slotMinutes,
+      summary: `Konsultasi Keuangan — ${pkg.service.replace(/^Konsultasi Keuangan — /, '')} (${name})`,
+      description: [
+        `Paket: ${pkg.service}`,
+        `Nama: ${name}`,
+        `Topik: ${topic}`,
+        `No. Ref: ${bookingId}`,
+      ].join('\n'),
+      clientEmail: email,
+    });
+
+    return NextResponse.json({
+      success: true,
+      bookingId,
+      meetLink: event.meetLink ?? null,
+      eventLink: event.htmlLink ?? null,
+    });
   } catch (error) {
     console.error('Konsultasi booking error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });

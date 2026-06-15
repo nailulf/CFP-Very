@@ -1,6 +1,7 @@
 export type BookingStep = 'schedule' | 'details' | 'confirm';
 
 export type BookingForm = {
+  packageId: string; // '' | 'starter' | 'family' | 'comprehensive'
   date: string;      // 'YYYY-MM-DD' from getSelectableDates
   timeSlot: string;  // 'HH:mm' from getSlotsForDate
   name: string;
@@ -10,6 +11,7 @@ export type BookingForm = {
 };
 
 export const EMPTY_BOOKING: BookingForm = {
+  packageId: '',
   date: '',
   timeSlot: '',
   name: '',
