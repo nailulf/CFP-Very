@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { BOOKING_AVAILABILITY } from '@/lib/booking-availability';
 import { isSlotAvailable } from '@/lib/konsultasi-availability';
 import { appendBooking } from '@/lib/konsultasi-store';
 import { createBookingEvent } from '@/lib/google-calendar';
 import { KONSULTASI_PACKAGE_IDS, getKonsultasiPackage } from '@/lib/konsultasi-packages';
+import { getAvailabilityConfig, getPackagePricing } from '@/lib/settings-store';
+import { resolveAmount } from '@/lib/settings-config';
 
 const schema = z.object({
   packageId: z.enum(KONSULTASI_PACKAGE_IDS),
@@ -13,7 +14,8 @@ const schema = z.object({
   phone: z.string().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   timeSlot: z.string().regex(/^\d{2}:\d{2}$/),
-  topic: z.string().min(10),
+  // Fully optional, free-text.
+  topic: z.string().max(2000).optional().default(''),
 });
 
 function makeBookingId(now: Date): string {
@@ -35,12 +37,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Paket tidak valid.' }, { status: 400 });
     }
 
-    if (!(await isSlotAvailable(BOOKING_AVAILABILITY, date, timeSlot, new Date()))) {
+    const config = await getAvailabilityConfig();
+    if (!(await isSlotAvailable(config, date, timeSlot, new Date()))) {
       return NextResponse.json(
         { success: false, message: 'Jadwal yang dipilih sudah tidak tersedia.' },
         { status: 400 },
       );
     }
+
+    const pricing = await getPackagePricing();
+    const amount = resolveAmount(pricing[packageId]);
 
     const bookingId = makeBookingId(new Date());
     await appendBooking({
@@ -52,7 +58,7 @@ export async function POST(request: Request) {
       timeSlot,
       topic,
       service: pkg.service,
-      amount: pkg.amount,
+      amount,
     });
 
     // Best-effort: create the calendar event + Meet link + client invite. The
@@ -60,7 +66,7 @@ export async function POST(request: Request) {
     const event = await createBookingEvent({
       date,
       time: timeSlot,
-      durationMinutes: BOOKING_AVAILABILITY.slotMinutes,
+      durationMinutes: config.slotMinutes,
       summary: `Konsultasi Keuangan — ${pkg.service.replace(/^Konsultasi Keuangan — /, '')} (${name})`,
       description: [
         `Paket: ${pkg.service}`,

@@ -10,6 +10,10 @@ export default defineConfig({
     env: { TZ: 'Asia/Jakarta' },
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, 'src') },
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+      // `server-only` throws when imported outside a Next.js server bundle; stub it for tests.
+      'server-only': path.resolve(__dirname, 'src/test/empty-module.ts'),
+    },
   },
 });

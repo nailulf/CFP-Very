@@ -100,6 +100,40 @@ async function getSheetGridId(
   return sheet.properties.sheetId;
 }
 
+/**
+ * Create a tab if it does not already exist. No-op when the tab is present.
+ * Used so the admin dashboard can self-bootstrap the "Settings" tab.
+ */
+export async function ensureSheetTab(
+  spreadsheetId: string,
+  tabName: string
+): Promise<void> {
+  const token = await getGoogleAccessToken();
+  const metaUrl = `${SHEETS_API}/${spreadsheetId}?fields=sheets.properties`;
+  const metaRes = await fetch(metaUrl, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!metaRes.ok) {
+    throw new Error(`Google Sheets metadata failed (${metaRes.status}): ${await metaRes.text()}`);
+  }
+  const data = (await metaRes.json()) as {
+    sheets?: { properties: { title: string } }[];
+  };
+  if (data.sheets?.some((s) => s.properties.title === tabName)) return;
+
+  const url = `${SHEETS_API}/${spreadsheetId}:batchUpdate`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requests: [{ addSheet: { properties: { title: tabName } } }],
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Google Sheets addSheet failed (${res.status}): ${await res.text()}`);
+  }
+}
+
 export async function deleteSheetRow(
   spreadsheetId: string,
   tabName: string,

@@ -6,19 +6,22 @@ import { Container } from '@/components/ui/Container';
 import { useLang } from '@/lib/lang-context';
 import { translations } from '@/lib/translations';
 import { EMPTY_BOOKING, type BookingForm, type BookingStep } from './lib/types';
-import { getKonsultasiPackage, formatIDR } from '@/lib/konsultasi-packages';
+import { formatIDR } from '@/lib/konsultasi-packages';
+import type { KonsultasiPackageId } from '@/lib/konsultasi-packages';
 import type { PaymentDisplay } from '@/lib/konsultasi-payment';
+import type { PackagePricing } from '@/lib/settings-config';
 
 type Props = {
   enabled: boolean;
   dates: string[];
   slotsByDate: Record<string, string[]>;
   payment: PaymentDisplay;
+  pricing: PackagePricing;
 };
 
 const STEP_ORDER: BookingStep[] = ['schedule', 'details', 'confirm'];
 
-export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Props) {
+export default function BookingFlow({ enabled, dates, slotsByDate, payment, pricing }: Props) {
   const { lang } = useLang();
   const t = translations[lang].konsultasi.booking;
   const [step, setStep] = useState<BookingStep>('schedule');
@@ -27,15 +30,21 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [meetLink, setMeetLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; phone?: boolean }>({});
 
   const slots = useMemo(() => (form.date ? slotsByDate[form.date] ?? [] : []), [form.date, slotsByDate]);
   const set = (patch: Partial<BookingForm>) => setForm((f) => ({ ...f, ...patch }));
+  const touch = (k: 'name' | 'email' | 'phone') => setTouched((prev) => ({ ...prev, [k]: true }));
   const fmtDate = (iso: string) =>
     new Date(`${iso}T00:00:00`).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     });
 
-  const pkgAmount = (id: string) => getKonsultasiPackage(id)?.amount ?? 0;
+  const pkgPrice = (id: string) => pricing[id as KonsultasiPackageId] ?? null;
+  const pkgAmount = (id: string) => {
+    const p = pkgPrice(id);
+    return p ? (p.salePrice ?? p.price) : 0;
+  };
   const selectedPkg = t.packages.items.find((p) => p.id === form.packageId);
   const selectedAmount = pkgAmount(form.packageId);
 
@@ -94,9 +103,22 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
   }
 
   const stepIndex = STEP_ORDER.indexOf(step);
-  const canNext =
-    (step === 'schedule' && Boolean(form.packageId) && form.date && form.timeSlot) ||
-    (step === 'details' && form.name.trim().length >= 2 && /.+@.+\..+/.test(form.email) && form.topic.trim().length >= 10);
+
+  const nameValid = form.name.trim().length >= 2;
+  const emailValid = /.+@.+\..+/.test(form.email);
+  const phoneValid = form.phone.trim().length >= 1;
+  // Topic is fully optional — no validation.
+  const scheduleValid = Boolean(form.packageId) && Boolean(form.date) && Boolean(form.timeSlot);
+  const detailsValid = nameValid && emailValid && phoneValid;
+
+  const goNext = () => {
+    if (step === 'schedule' && !scheduleValid) return;
+    if (step === 'details' && !detailsValid) {
+      setTouched({ name: true, email: true, phone: true });
+      return;
+    }
+    setStep(STEP_ORDER[stepIndex + 1]);
+  };
 
   const submit = async () => {
     setSubmitting(true); setError(null);
@@ -117,6 +139,8 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
 
   const input = 'h-[48px] w-full bg-[#F5F8FC] border border-[#CBDCEA] rounded-[10px] px-4 outline-none focus:ring-2 focus:ring-[#f79d35]/40 focus:border-[#f79d35]';
   const label = 'block text-[13px] font-semibold text-[#3A5A70] mb-1.5';
+  const hintText = 'text-[11px] text-[#9BAFC0] mt-1';
+  const errText = 'text-[11px] text-[#8C1C00] mt-1';
 
   return (
     <Container>
@@ -151,7 +175,22 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
                       )}
                       <div>
                         <p className="font-extrabold text-[#1A1918] text-[16px] leading-tight">{p.name}</p>
-                        <p className="text-[20px] font-extrabold text-[#205781] mt-1">{formatIDR(pkgAmount(p.id))}</p>
+                        <p className="text-[20px] font-extrabold text-[#205781] mt-1">
+                          {(() => {
+                            const pr = pkgPrice(p.id);
+                            if (pr && pr.salePrice != null) {
+                              return (
+                                <>
+                                  <span className="text-[14px] font-semibold text-[#9C9B99] line-through mr-2">
+                                    {formatIDR(pr.price)}
+                                  </span>
+                                  {formatIDR(pr.salePrice)}
+                                </>
+                              );
+                            }
+                            return formatIDR(pkgAmount(p.id));
+                          })()}
+                        </p>
                       </div>
                       <p className="text-[12px] text-[#666666] leading-snug">{p.audience}</p>
                       <p className="font-mono text-[11px] font-bold text-[#4F9DA6] uppercase tracking-[0.5px]">{p.duration}</p>
@@ -212,13 +251,26 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
 
         {step === 'details' && (
           <div className="bg-white rounded-2xl border border-[#E0EBF5] p-6 flex flex-col gap-4">
-            <div><label className={label} htmlFor="booking-name">{t.details.nameLabel}</label><input id="booking-name" className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} /></div>
-            <div><label className={label} htmlFor="booking-email">{t.details.emailLabel}</label><input id="booking-email" type="email" className={input} value={form.email} onChange={(e) => set({ email: e.target.value })} /></div>
-            <div><label className={label} htmlFor="booking-phone">{t.details.phoneLabel}</label><input id="booking-phone" className={input} value={form.phone} onChange={(e) => set({ phone: e.target.value })} /></div>
             <div>
-              <label className={label} htmlFor="booking-topic">{t.details.topicLabel}</label>
-              <textarea id="booking-topic" className="w-full min-h-[120px] bg-[#F5F8FC] border border-[#CBDCEA] rounded-[10px] p-4 outline-none focus:ring-2 focus:ring-[#f79d35]/40 focus:border-[#f79d35]" value={form.topic} onChange={(e) => set({ topic: e.target.value })} />
-              <p className="text-[11px] text-[#9BAFC0] mt-1">{t.details.topicHint}</p>
+              <label className={label} htmlFor="booking-name">{t.details.nameLabel} <span className="text-[#8C1C00]">*</span></label>
+              <input id="booking-name" className={`${input} ${touched.name && !nameValid ? 'border-[#8C1C00]' : ''}`} value={form.name} onChange={(e) => set({ name: e.target.value })} onBlur={() => touch('name')} aria-invalid={Boolean(touched.name && !nameValid)} />
+              {touched.name && !nameValid && <p className={errText}>{t.details.errName}</p>}
+            </div>
+            <div>
+              <label className={label} htmlFor="booking-email">{t.details.emailLabel} <span className="text-[#8C1C00]">*</span></label>
+              <input id="booking-email" type="email" className={`${input} ${touched.email && !emailValid ? 'border-[#8C1C00]' : ''}`} value={form.email} onChange={(e) => set({ email: e.target.value })} onBlur={() => touch('email')} aria-invalid={Boolean(touched.email && !emailValid)} />
+              {touched.email && !emailValid
+                ? <p className={errText}>{t.details.errEmail}</p>
+                : <p className={hintText}>{t.details.emailHint}</p>}
+            </div>
+            <div>
+              <label className={label} htmlFor="booking-phone">{t.details.phoneLabel} <span className="text-[#8C1C00]">*</span></label>
+              <input id="booking-phone" className={`${input} ${touched.phone && !phoneValid ? 'border-[#8C1C00]' : ''}`} value={form.phone} onChange={(e) => set({ phone: e.target.value })} onBlur={() => touch('phone')} aria-invalid={Boolean(touched.phone && !phoneValid)} />
+              {touched.phone && !phoneValid && <p className={errText}>{t.details.errPhone}</p>}
+            </div>
+            <div>
+              <label className={label} htmlFor="booking-topic">{t.details.topicLabel} <span className="text-[#9BAFC0] font-normal">({t.details.optional})</span></label>
+              <textarea id="booking-topic" placeholder={t.details.topicHint} className="w-full min-h-[120px] bg-[#F5F8FC] border border-[#CBDCEA] rounded-[10px] p-4 outline-none focus:ring-2 focus:ring-[#f79d35]/40 focus:border-[#f79d35] placeholder:text-[#9BAFC0]" value={form.topic} onChange={(e) => set({ topic: e.target.value })} />
             </div>
           </div>
         )}
@@ -259,7 +311,7 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment }: Pr
           {step === 'confirm' ? (
             <button type="button" disabled={submitting} onClick={submit} className="rounded-full bg-[#f79d35] px-7 py-3 font-semibold text-white disabled:opacity-50">{t.confirm.submit}</button>
           ) : (
-            <button type="button" disabled={!canNext} onClick={() => setStep(STEP_ORDER[stepIndex + 1])} className="rounded-full bg-[#205781] px-7 py-3 font-semibold text-white disabled:opacity-40">{t.next}</button>
+            <button type="button" disabled={step === 'schedule' && !scheduleValid} onClick={goNext} className="rounded-full bg-[#205781] px-7 py-3 font-semibold text-white disabled:opacity-40">{t.next}</button>
           )}
         </div>
 

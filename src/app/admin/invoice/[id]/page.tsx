@@ -12,7 +12,7 @@ export default async function StoredInvoicePage({
   params: Promise<{ id: string }>;
 }) {
   const session = await getInvoiceSession();
-  if (!session) redirect('/generate-invoice/login');
+  if (!session) redirect('/admin/login');
 
   const { id } = await params;
   let invoice;

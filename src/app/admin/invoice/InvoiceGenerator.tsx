@@ -245,7 +245,7 @@ export function InvoiceGenerator({
       }
       setSaveStatus('saved');
       if (data.id) {
-        router.push('/generate-invoice/list');
+        router.push('/admin/invoice/list');
       }
     } catch (err) {
       setSaveStatus('error');
@@ -255,7 +255,7 @@ export function InvoiceGenerator({
 
   const handleLogout = async () => {
     await fetch('/api/invoice-auth/logout', { method: 'POST' });
-    router.replace('/generate-invoice/login');
+    router.replace('/admin/login');
     router.refresh();
   };
 
@@ -271,7 +271,7 @@ export function InvoiceGenerator({
             <p className="text-xs text-[#6D6C6A]">Masuk sebagai {userEmail}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/generate-invoice/list">
+            <Link href="/admin/invoice/list">
               <Button size="sm" variant="ghost">
                 <List size={16} className="mr-2" /> Daftar
               </Button>
