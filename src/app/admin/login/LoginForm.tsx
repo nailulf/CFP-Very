@@ -29,7 +29,9 @@ export function LoginForm() {
         setError(data.message || 'Login gagal.');
         return;
       }
-      const next = searchParams.get('next') || '/admin';
+      // Only allow same-origin relative paths to avoid open-redirect abuse.
+      const raw = searchParams.get('next') || '/admin';
+      const next = raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/\\') ? raw : '/admin';
       router.replace(next);
       router.refresh();
     } catch {
