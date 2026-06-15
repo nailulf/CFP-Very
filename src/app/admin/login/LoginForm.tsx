@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +29,8 @@ export function LoginForm() {
         setError(data.message || 'Login gagal.');
         return;
       }
-      router.replace('/generate-invoice');
+      const next = searchParams.get('next') || '/admin';
+      router.replace(next);
       router.refresh();
     } catch {
       setError('Terjadi kesalahan jaringan.');

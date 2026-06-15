@@ -133,7 +133,7 @@ export function InvoiceList({
 
   const handleLogout = async () => {
     await fetch('/api/invoice-auth/logout', { method: 'POST' });
-    router.replace('/generate-invoice/login');
+    router.replace('/admin/login');
     router.refresh();
   };
 
@@ -143,7 +143,7 @@ export function InvoiceList({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/generate-invoice"
+              href="/admin/invoice"
               className="text-[#6D6C6A] hover:text-[#1A1918]"
               aria-label="Kembali"
             >
@@ -155,7 +155,7 @@ export function InvoiceList({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/generate-invoice">
+            <Link href="/admin/invoice">
               <Button size="sm" variant="outline">
                 <Plus size={16} className="mr-2" /> Invoice Baru
               </Button>
@@ -212,7 +212,7 @@ export function InvoiceList({
                       <tr key={inv.id} className="border-b last:border-0">
                         <Td>
                           <Link
-                            href={`/generate-invoice/${inv.id}`}
+                            href={`/admin/invoice/${inv.id}`}
                             className="font-medium text-[#205781] hover:underline"
                           >
                             {inv.invoiceNumber}
@@ -246,7 +246,7 @@ export function InvoiceList({
                         </Td>
                         <Td className="text-right whitespace-nowrap">
                           <Link
-                            href={`/generate-invoice/${inv.id}`}
+                            href={`/admin/invoice/${inv.id}`}
                             className="inline-flex items-center justify-center h-8 w-8 rounded-md text-[#205781] hover:bg-[#E0EFF5]"
                             aria-label="Buka"
                           >

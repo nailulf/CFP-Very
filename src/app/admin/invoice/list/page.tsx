@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function InvoiceListPage() {
   const session = await getInvoiceSession();
-  if (!session) redirect('/generate-invoice/login');
+  if (!session) redirect('/admin/login');
 
   let invoices: Awaited<ReturnType<typeof listInvoices>> = [];
   let loadError: string | null = null;

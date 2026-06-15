@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function GenerateInvoicePage() {
   const session = await getInvoiceSession();
-  if (!session) redirect('/generate-invoice/login');
+  if (!session) redirect('/admin/login');
 
   return (
     <InvoiceGenerator
