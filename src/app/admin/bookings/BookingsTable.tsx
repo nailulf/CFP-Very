@@ -9,6 +9,7 @@ const STATUS_OPTIONS = [
   { value: 'paid', label: 'Lunas' },
   { value: 'cancelled', label: 'Dibatalkan' },
   { value: 'refunded', label: 'Dikembalikan' },
+  { value: 'expired', label: 'Kedaluwarsa' },
 ] as const;
 
 const STATUS_STYLE: Record<string, string> = {
@@ -16,6 +17,7 @@ const STATUS_STYLE: Record<string, string> = {
   paid: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   cancelled: 'bg-gray-100 text-gray-600 border-gray-200',
   refunded: 'bg-gray-100 text-gray-600 border-gray-200',
+  expired: 'bg-gray-100 text-gray-600 border-gray-200',
 };
 
 const fmtIDR = (raw: string) => {

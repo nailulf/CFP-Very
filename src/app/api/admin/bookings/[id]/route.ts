@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getInvoiceSession } from '@/lib/invoice-auth';
 import { updateBookingStatus } from '@/lib/konsultasi-store';
 
-export const ADMIN_BOOKING_STATUSES = ['pending_payment', 'paid', 'cancelled', 'refunded'] as const;
+export const ADMIN_BOOKING_STATUSES = ['pending_payment', 'paid', 'cancelled', 'refunded', 'expired'] as const;
 
 const schema = z.object({ status: z.enum(ADMIN_BOOKING_STATUSES) });
 
