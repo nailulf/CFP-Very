@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
@@ -28,12 +28,19 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
   const [form, setForm] = useState<BookingForm>(EMPTY_BOOKING);
   const [submitting, setSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [meetLink, setMeetLink] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; phone?: boolean }>({});
-  const [uploading, setUploading] = useState(false);
-  const [proofDone, setProofDone] = useState(false);
-  const [proofError, setProofError] = useState<string | null>(null);
+
+  // After booking success: give the customer a beat to see/save the status
+  // link, then hand off to the Mayar hosted checkout (or the status page when
+  // invoice creation failed — it self-heals there).
+  useEffect(() => {
+    if (!bookingId) return;
+    const target = paymentUrl ?? `/konsultasi/booking/status/${bookingId}`;
+    const id = setTimeout(() => window.location.assign(target), 3000);
+    return () => clearTimeout(id);
+  }, [bookingId, paymentUrl]);
 
   const slots = useMemo(() => (form.date ? slotsByDate[form.date] ?? [] : []), [form.date, slotsByDate]);
   const set = (patch: Partial<BookingForm>) => setForm((f) => ({ ...f, ...patch }));
@@ -42,24 +49,6 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
     new Date(`${iso}T00:00:00`).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     });
-
-  const uploadProof = async (file: File) => {
-    if (!bookingId) return;
-    setUploading(true); setProofError(null);
-    try {
-      const fd = new FormData();
-      fd.append('bookingId', bookingId);
-      fd.append('file', file);
-      const res = await fetch('/api/konsultasi/payment-proof', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || 'Gagal');
-      setProofDone(true);
-    } catch (e) {
-      setProofError(e instanceof Error ? e.message : 'Gagal');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const pkgPrice = (id: string) => pricing[id as KonsultasiPackageId] ?? null;
   const pkgAmount = (id: string) => {
@@ -82,57 +71,35 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
   }
 
   if (bookingId) {
-    const waMessage = [
-      t.success.waIntro,
-      `${t.confirm.summaryName}: ${form.name}`,
-      `${t.confirm.summaryPackage}: ${selectedPkg?.name ?? '-'}`,
-      `${t.confirm.summaryDate}: ${fmtDate(form.date)}`,
-      `${t.confirm.summaryTime}: ${form.timeSlot} WIB`,
-      ...(meetLink ? [`Google Meet: ${meetLink}`] : []),
-      `${t.success.refId}: ${bookingId}`,
-    ].join('\n');
-    const waHref = `${payment.whatsappUrl.split('?')[0]}?text=${encodeURIComponent(waMessage)}`;
+    const statusPath = `/konsultasi/booking/status/${bookingId}`;
     return (
       <Container>
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-[#E0EBF5] p-8">
-          <h1 className="text-2xl font-extrabold text-[#1A1918] mb-2">{t.success.title}</h1>
-          <p className="text-[#666666] mb-4">{t.success.body}</p>
-          <p className="text-[13px] text-[#666666] mb-6">{t.success.refId}: <span className="font-mono font-bold text-[#205781]">{bookingId}</span></p>
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-[#E0EBF5] p-8 text-center">
+          <h1 className="text-2xl font-extrabold text-[#1A1918] mb-2">{t.payment.createdTitle}</h1>
+          <p className="text-[13px] text-[#666666] mb-4">
+            {t.success.refId}: <span className="font-mono font-bold text-[#205781]">{bookingId}</span>
+          </p>
+          <p className="text-[#666666] mb-5">
+            {paymentUrl ? t.payment.createdBody : t.payment.noPayUrl}
+          </p>
 
-          <div className="bg-[#F5F8FC] border border-[#E0EBF5] rounded-2xl p-5 mb-6">
-            <p className="font-semibold text-[#1A1918] mb-3">{t.success.summaryTitle}</p>
-            <dl className="flex flex-col gap-2 text-[14px]">
-              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryName}</dt><dd className="font-semibold text-[#1A1918]">{form.name}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryPackage}</dt><dd className="font-semibold text-[#1A1918]">{selectedPkg?.name}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryDate}</dt><dd className="font-semibold text-[#1A1918]">{fmtDate(form.date)}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#666666]">{t.confirm.summaryTime}</dt><dd className="font-semibold text-[#1A1918]">{form.timeSlot} WIB</dd></div>
-              <div className="flex justify-between pt-2 mt-1 border-t border-[#E0EBF5]"><dt className="font-bold text-[#1A1918]">{t.confirm.total}</dt><dd className="font-extrabold text-[#205781]">{formatIDR(selectedAmount)}</dd></div>
-            </dl>
+          <div className="bg-[#F5F8FC] border border-[#E0EBF5] rounded-2xl p-5 mb-6 text-left">
+            <p className="text-[13px] font-semibold text-[#3A5A70] mb-1">{t.payment.saveLink}</p>
+            <Link href={statusPath} className="font-mono text-[13px] text-[#205781] underline break-all">
+              {typeof window !== 'undefined' ? `${window.location.origin}${statusPath}` : statusPath}
+            </Link>
           </div>
 
-          {meetLink && (
-            <p className="text-[13px] text-[#666666] mb-5">
-              {t.success.meetNote}{' '}
-              <a href={meetLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#4F9DA6] underline">{t.success.joinMeet}</a>
-            </p>
-          )}
-
-          {/* Payment proof upload */}
-          <div className="border border-[#E0EBF5] rounded-2xl p-5 mb-6">
-            <p className="font-semibold text-[#1A1918] mb-1">{t.success.uploadTitle}</p>
-            <p className="text-[13px] text-[#666666] mb-3">{t.success.uploadHint}</p>
-            {proofDone ? (
-              <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1B7A3F]"><Check className="w-4 h-4" />{t.success.uploadDone}</p>
-            ) : (
-              <label className={`inline-flex items-center gap-2 rounded-full border border-[#205781] px-5 py-2.5 text-[14px] font-semibold text-[#205781] transition-colors ${uploading ? 'opacity-50 cursor-default' : 'cursor-pointer hover:bg-[#205781] hover:text-white'}`}>
-                <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" className="hidden" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadProof(f); e.target.value = ''; }} />
-                {uploading ? t.success.uploading : t.success.uploadCta}
-              </label>
+          <div className="flex flex-wrap justify-center gap-3">
+            {paymentUrl && (
+              <a href={paymentUrl} className="inline-flex rounded-full bg-[#f79d35] px-7 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]">
+                {t.payment.payNow}
+              </a>
             )}
-            {proofError && <p className="text-[13px] text-[#8C1C00] mt-2">{proofError}</p>}
+            <Link href={statusPath} className="inline-flex rounded-full border border-[#205781] px-6 py-3 font-semibold text-[#205781]">
+              {t.payment.toStatus}
+            </Link>
           </div>
-
-          <a href={waHref} target="_blank" rel="noopener noreferrer" className="inline-flex rounded-full bg-[#f79d35] px-6 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]">{t.success.whatsapp}</a>
         </div>
       </Container>
     );
@@ -166,7 +133,7 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || 'Gagal');
-      setMeetLink(data.meetLink ?? null);
+      setPaymentUrl(data.paymentUrl ?? null);
       setBookingId(data.bookingId);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Gagal');
