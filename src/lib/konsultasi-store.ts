@@ -173,3 +173,43 @@ export async function updateBookingStatus(id: string, status: string): Promise<b
   }
   return false;
 }
+
+const PROOF_COL_INDEX = 13; // column N — "Bukti Pembayaran"
+
+/** True if a booking id exists in the "Order" sheet. */
+export async function bookingExists(id: string): Promise<boolean> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
+  const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
+  const rows = await readSheetValues(sheetId, `${tab}!A:A`);
+  return rows.some((r, i) => i > 0 && (r[0] || '').trim() === id);
+}
+
+/**
+ * Record an uploaded payment-proof link (column N) and flag the booking as
+ * awaiting verification (column G). Returns false if the id is not found.
+ */
+export async function setPaymentProof(
+  id: string,
+  link: string,
+  status = 'menunggu_verifikasi',
+): Promise<boolean> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
+
+  const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
+  const rows = await readSheetValues(sheetId, `${tab}!A:N`);
+  if (rows.length > 0 && !rows[0][PROOF_COL_INDEX]) {
+    await updateSheetRange(sheetId, `${tab}!N1`, [['Bukti Pembayaran']]);
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    if ((rows[i]?.[ID_COL_INDEX] || '').trim() === id) {
+      const sheetRow = i + 1; // header is sheet row 1
+      await updateSheetRange(sheetId, `${tab}!G${sheetRow}`, [[status]]);
+      await updateSheetRange(sheetId, `${tab}!N${sheetRow}`, [[sanitizeCell(link)]]);
+      return true;
+    }
+  }
+  return false;
+}

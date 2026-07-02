@@ -31,6 +31,9 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
   const [meetLink, setMeetLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; phone?: boolean }>({});
+  const [uploading, setUploading] = useState(false);
+  const [proofDone, setProofDone] = useState(false);
+  const [proofError, setProofError] = useState<string | null>(null);
 
   const slots = useMemo(() => (form.date ? slotsByDate[form.date] ?? [] : []), [form.date, slotsByDate]);
   const set = (patch: Partial<BookingForm>) => setForm((f) => ({ ...f, ...patch }));
@@ -39,6 +42,24 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
     new Date(`${iso}T00:00:00`).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     });
+
+  const uploadProof = async (file: File) => {
+    if (!bookingId) return;
+    setUploading(true); setProofError(null);
+    try {
+      const fd = new FormData();
+      fd.append('bookingId', bookingId);
+      fd.append('file', file);
+      const res = await fetch('/api/konsultasi/payment-proof', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || 'Gagal');
+      setProofDone(true);
+    } catch (e) {
+      setProofError(e instanceof Error ? e.message : 'Gagal');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const pkgPrice = (id: string) => pricing[id as KonsultasiPackageId] ?? null;
   const pkgAmount = (id: string) => {
@@ -95,6 +116,21 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
               <a href={meetLink} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#4F9DA6] underline">{t.success.joinMeet}</a>
             </p>
           )}
+
+          {/* Payment proof upload */}
+          <div className="border border-[#E0EBF5] rounded-2xl p-5 mb-6">
+            <p className="font-semibold text-[#1A1918] mb-1">{t.success.uploadTitle}</p>
+            <p className="text-[13px] text-[#666666] mb-3">{t.success.uploadHint}</p>
+            {proofDone ? (
+              <p className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1B7A3F]"><Check className="w-4 h-4" />{t.success.uploadDone}</p>
+            ) : (
+              <label className={`inline-flex items-center gap-2 rounded-full border border-[#205781] px-5 py-2.5 text-[14px] font-semibold text-[#205781] transition-colors ${uploading ? 'opacity-50 cursor-default' : 'cursor-pointer hover:bg-[#205781] hover:text-white'}`}>
+                <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" className="hidden" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadProof(f); e.target.value = ''; }} />
+                {uploading ? t.success.uploading : t.success.uploadCta}
+              </label>
+            )}
+            {proofError && <p className="text-[13px] text-[#8C1C00] mt-2">{proofError}</p>}
+          </div>
 
           <a href={waHref} target="_blank" rel="noopener noreferrer" className="inline-flex rounded-full bg-[#f79d35] px-6 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]">{t.success.whatsapp}</a>
         </div>

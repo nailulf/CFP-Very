@@ -6,7 +6,7 @@
  *
  * Prereqs (Google Cloud console):
  *   1. OAuth consent screen (External, Testing) — add yourself as a test user,
- *      add scope .../auth/calendar.events
+ *      add scopes .../auth/calendar.events and .../auth/drive.file
  *   2. Credentials → Create OAuth client ID → "Desktop app" → copy Client ID + Secret
  *
  * Usage:
@@ -25,7 +25,11 @@ if (!clientId || !clientSecret) {
 
 const PORT = 53682;
 const REDIRECT_URI = `http://localhost:${PORT}`;
-const SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+const SCOPE = [
+  'https://www.googleapis.com/auth/calendar.events',
+  // Full Drive — needed to upload into a specific pre-existing folder (by ID).
+  'https://www.googleapis.com/auth/drive',
+].join(' ');
 const STATE = crypto.randomBytes(8).toString('hex');
 
 const authUrl =
