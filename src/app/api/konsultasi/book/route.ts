@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isSlotAvailable } from '@/lib/konsultasi-availability';
-import { appendBooking } from '@/lib/konsultasi-store';
-import { createBookingEvent } from '@/lib/google-calendar';
+import { appendBooking, setInvoiceId } from '@/lib/konsultasi-store';
 import { KONSULTASI_PACKAGE_IDS, getKonsultasiPackage } from '@/lib/konsultasi-packages';
 import { getAvailabilityConfig, getPackagePricing } from '@/lib/settings-store';
 import { resolveAmount } from '@/lib/settings-config';
+import { createInvoice, isMayarConfigured } from '@/lib/mayar';
+import { paymentDeadline, PAYMENT_WINDOW_MS } from '@/lib/konsultasi-payment-window';
 
 const schema = z.object({
   packageId: z.enum(KONSULTASI_PACKAGE_IDS),
@@ -48,7 +49,8 @@ export async function POST(request: Request) {
     const pricing = await getPackagePricing();
     const amount = resolveAmount(pricing[packageId]);
 
-    const bookingId = makeBookingId(new Date());
+    const now = new Date();
+    const bookingId = makeBookingId(now);
     await appendBooking({
       bookingId,
       name,
@@ -61,28 +63,35 @@ export async function POST(request: Request) {
       amount,
     });
 
-    // Best-effort: create the calendar event + Meet link + client invite. The
-    // booking is already recorded, so a calendar failure must not fail the request.
-    const event = await createBookingEvent({
-      date,
-      time: timeSlot,
-      durationMinutes: config.slotMinutes,
-      summary: `Konsultasi Keuangan — ${pkg.service.replace(/^Konsultasi Keuangan — /, '')} (${name})`,
-      description: [
-        `Paket: ${pkg.service}`,
-        `Nama: ${name}`,
-        `Topik: ${topic}`,
-        `No. Ref: ${bookingId}`,
-      ].join('\n'),
-      clientEmail: email,
-    });
+    // Payment: create the Mayar hosted-checkout invoice. Best-effort — the
+    // booking row is already recorded and the status page self-heals a missing
+    // invoice, so a Mayar outage must not fail the request. The Calendar event
+    // + Meet invite are created after payment (konsultasi-payment-confirm).
+    let paymentUrl: string | null = null;
+    if (isMayarConfigured()) {
+      try {
+        const origin = new URL(request.url).origin;
+        const expiredAt =
+          paymentDeadline(now.toISOString(), date, timeSlot) ??
+          new Date(now.getTime() + PAYMENT_WINDOW_MS);
+        const invoice = await createInvoice({
+          bookingId,
+          name,
+          email,
+          mobile: phone ?? '',
+          serviceLabel: pkg.service,
+          amount,
+          expiredAt,
+          statusUrl: `${origin}/konsultasi/booking/status/${bookingId}`,
+        });
+        await setInvoiceId(bookingId, invoice.id);
+        paymentUrl = invoice.link ?? null;
+      } catch (error) {
+        console.error('Mayar invoice creation failed (status page will self-heal):', error);
+      }
+    }
 
-    return NextResponse.json({
-      success: true,
-      bookingId,
-      meetLink: event.meetLink ?? null,
-      eventLink: event.htmlLink ?? null,
-    });
+    return NextResponse.json({ success: true, bookingId, paymentUrl });
   } catch (error) {
     console.error('Konsultasi booking error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
