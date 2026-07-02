@@ -141,6 +141,13 @@ export async function reconcileBookingStatus(
   // Self-heal: Mayar was down when the booking was created — no invoice yet.
   if (!b.invoiceId) {
     if (!isMayarConfigured()) return result('pending_payment');
+    const amount = Number(b.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      console.error(
+        `reconcileBookingStatus: refusing to self-heal invoice for ${bookingId} — bad amount "${b.amount}"`,
+      );
+      return result('pending_payment');
+    }
     try {
       const invoice = await createInvoice({
         bookingId,
@@ -148,7 +155,7 @@ export async function reconcileBookingStatus(
         email: b.email,
         mobile: b.phone,
         serviceLabel: b.service,
-        amount: Number(b.amount) || 0,
+        amount,
         expiredAt:
           paymentDeadline(b.createdAt, b.date, b.time) ?? new Date(Date.now() + PAYMENT_WINDOW_MS),
         statusUrl: `${origin}/konsultasi/booking/status/${bookingId}`,

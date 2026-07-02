@@ -142,6 +142,13 @@ describe('reconcileBookingStatus', () => {
     expect(arg.amount).toBe(500000);
   });
 
+  it('does not self-heal an invoice for a garbled amount', async () => {
+    getBookingById.mockResolvedValue(booking({ invoiceId: '', amount: '' }));
+    const r = await reconcileBookingStatus('KB-1', ORIGIN);
+    expect(r?.status).toBe('pending_payment');
+    expect(createInvoice).not.toHaveBeenCalled();
+  });
+
   it('reconciles a missed webhook: pending in sheet, paid on Mayar', async () => {
     getBookingById.mockResolvedValue(booking());
     getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });

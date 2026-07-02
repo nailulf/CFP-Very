@@ -7,6 +7,7 @@
 | `MAYAR_API_KEY` | Mayar dashboard → API Keys → generate a **Read & Write** key. Sandbox (mayar.club) and production (mayar.id) use **separate keys**. |
 | `MAYAR_BASE_URL` | Development: `https://api.mayar.club/hl/v2` · Production: `https://api.mayar.id/hl/v2` |
 | `MAYAR_WEBHOOK_TOKEN` | Long random string, e.g. `openssl rand -hex 32`. Shared secret in the webhook URL. |
+| `MAYAR_PUBLIC_ORIGIN` | Optional. Public site origin (e.g. `https://yourdomain.com`) used for the status link shown on invoices; falls back to the request origin. Set it in production so preview/deployment URLs never leak onto invoices. |
 
 ## Mayar dashboard steps (manual, once per environment)
 
@@ -17,6 +18,8 @@
    under payment/checkout settings.
 4. Use **Test URL Hook** on the webhook page to send a test event and confirm a
    200 response in the deployment logs.
+
+> Note: the webhook token rides in the URL, so it appears in Mayar's logs and any proxy access logs. Rotating `MAYAR_WEBHOOK_TOKEN` (env + re-registering the webhook URL) is the revocation mechanism.
 
 ## Go-live checklist
 

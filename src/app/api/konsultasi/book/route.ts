@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     let paymentUrl: string | null = null;
     if (isMayarConfigured()) {
       try {
-        const origin = new URL(request.url).origin;
+        const origin = process.env.MAYAR_PUBLIC_ORIGIN || new URL(request.url).origin;
         const expiredAt =
           paymentDeadline(now.toISOString(), date, timeSlot) ??
           new Date(now.getTime() + PAYMENT_WINDOW_MS);

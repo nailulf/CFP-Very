@@ -17,7 +17,7 @@ export async function GET(
     return NextResponse.json({ success: false, message: 'Invalid booking id' }, { status: 400 });
   }
   try {
-    const origin = new URL(request.url).origin;
+    const origin = process.env.MAYAR_PUBLIC_ORIGIN || new URL(request.url).origin;
     const result = await reconcileBookingStatus(bookingId, origin);
     if (!result) {
       return NextResponse.json({ success: false, message: 'Booking tidak ditemukan.' }, { status: 404 });
