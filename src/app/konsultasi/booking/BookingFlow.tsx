@@ -33,14 +33,17 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
   const [touched, setTouched] = useState<{ name?: boolean; email?: boolean; phone?: boolean }>({});
 
   // After booking success: give the customer a beat to see/save the status
-  // link, then hand off to the Mayar hosted checkout (or the status page when
-  // invoice creation failed — it self-heals there).
+  // link, then forward THIS tab to the status page. Mayar's hosted checkout
+  // cannot redirect back after payment (redirectUrl is unsupported in API v2),
+  // so the status page is the customer's anchor: payment opens in a NEW tab
+  // via a user click (auto window.open would hit popup blockers) and the
+  // status page polls itself to "paid".
   useEffect(() => {
     if (!bookingId) return;
-    const target = paymentUrl ?? `/konsultasi/booking/status/${bookingId}`;
+    const target = `/konsultasi/booking/status/${bookingId}`;
     const id = setTimeout(() => window.location.assign(target), 3000);
     return () => clearTimeout(id);
-  }, [bookingId, paymentUrl]);
+  }, [bookingId]);
 
   const slots = useMemo(() => (form.date ? slotsByDate[form.date] ?? [] : []), [form.date, slotsByDate]);
   const set = (patch: Partial<BookingForm>) => setForm((f) => ({ ...f, ...patch }));
@@ -92,7 +95,13 @@ export default function BookingFlow({ enabled, dates, slotsByDate, payment, pric
 
           <div className="flex flex-wrap justify-center gap-3">
             {paymentUrl && (
-              <a href={paymentUrl} className="inline-flex rounded-full bg-[#f79d35] px-7 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]">
+              <a
+                href={paymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => window.location.assign(statusPath)}
+                className="inline-flex rounded-full bg-[#f79d35] px-7 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]"
+              >
                 {t.payment.payNow}
               </a>
             )}

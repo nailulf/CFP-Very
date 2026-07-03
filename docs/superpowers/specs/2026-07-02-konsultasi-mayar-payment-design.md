@@ -170,3 +170,7 @@ Manual dashboard steps (documented in the plan): generate API key; register webh
 2. **E2E on sandbox:** full booking → redirect → sandbox payment → webhook (use Mayar's *Test URL Hook*) → sheet flips to `paid` → Calendar event created → status page shows Lunas + Meet link.
 3. **Negative paths:** expired invoice releases slot; forged webhook rejected; booking with Mayar down self-heals.
 4. **Rollout:** deploy with sandbox keys → owner does a real sandbox run → swap `MAYAR_BASE_URL` + production API key + register production webhook → live test with the cheapest package (then refund).
+
+## Amendment — 2026-07-03
+
+Empirically verified on sandbox: Mayar API v2 **cannot redirect the customer back** after payment — `redirectUrl` is silently dropped by `POST /invoices/create` and `POST /payments/create`, and `POST /invoices/edit` 404s. UX changed accordingly: after booking, the customer's tab auto-forwards to the **status page** (not to Mayar); "Bayar Sekarang" opens Mayar's hosted checkout in a **new tab** (user click — popup-safe); the status page polls itself to "Pembayaran Diterima ✓". The status page is the customer's permanent anchor.

@@ -170,7 +170,14 @@ export default function StatusClient({
         {pending && (
           <div className="flex flex-wrap items-center gap-3 mb-6">
             {data.paymentUrl && (
-              <a href={data.paymentUrl} className="inline-flex rounded-full bg-[#f79d35] px-6 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]">
+              // New tab: Mayar can't redirect back after payment, so this page
+              // stays open and polls itself to "paid".
+              <a
+                href={data.paymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex rounded-full bg-[#f79d35] px-6 py-3 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]"
+              >
                 {t.payment.payNow}
               </a>
             )}

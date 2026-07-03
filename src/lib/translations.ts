@@ -273,7 +273,7 @@ export const translations = {
         },
         payment: {
           createdTitle: 'Booking dibuat!',
-          createdBody: 'Kamu akan diarahkan ke halaman pembayaran dalam beberapa detik…',
+          createdBody: 'Kamu akan diarahkan ke halaman status booking. Klik Bayar Sekarang — pembayaran terbuka di tab baru, dan status di halaman ini terupdate otomatis setelah pembayaran diterima.',
           saveLink: 'Simpan link ini untuk cek status booking-mu kapan saja:',
           payNow: 'Bayar Sekarang',
           toStatus: 'Lihat Status Booking',
@@ -672,7 +672,7 @@ export const translations = {
         },
         payment: {
           createdTitle: 'Booking created!',
-          createdBody: 'You will be redirected to the payment page in a few seconds…',
+          createdBody: 'You will be taken to your booking status page. Click Pay Now — payment opens in a new tab, and the status on this page updates automatically once payment is received.',
           saveLink: 'Save this link to check your booking status anytime:',
           payNow: 'Pay Now',
           toStatus: 'View Booking Status',
