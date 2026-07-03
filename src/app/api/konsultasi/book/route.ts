@@ -5,7 +5,7 @@ import { appendBooking, setInvoiceId } from '@/lib/konsultasi-store';
 import { KONSULTASI_PACKAGE_IDS, getKonsultasiPackage } from '@/lib/konsultasi-packages';
 import { getAvailabilityConfig, getPackagePricing } from '@/lib/settings-store';
 import { resolveAmount } from '@/lib/settings-config';
-import { createInvoice, isMayarConfigured } from '@/lib/mayar';
+import { createInvoice, invoiceUrl, isMayarConfigured } from '@/lib/mayar';
 import { paymentDeadline, PAYMENT_WINDOW_MS } from '@/lib/konsultasi-payment-window';
 
 const schema = z.object({
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
           statusUrl: `${origin}/konsultasi/booking/status/${bookingId}`,
         });
         await setInvoiceId(bookingId, invoice.id);
-        paymentUrl = invoice.link ?? null;
+        paymentUrl = invoiceUrl(invoice);
       } catch (error) {
         console.error('Mayar invoice creation failed (status page will self-heal):', error);
       }

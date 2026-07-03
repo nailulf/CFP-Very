@@ -4,10 +4,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const getInvoice = vi.fn();
 const createInvoice = vi.fn();
 const isMayarConfigured = vi.fn(() => true);
-vi.mock('./mayar', () => ({
+vi.mock('./mayar', async (importOriginal) => ({
   getInvoice: (...a: unknown[]) => getInvoice(...a),
   createInvoice: (...a: unknown[]) => createInvoice(...a),
   isMayarConfigured: () => isMayarConfigured(),
+  // Pure URL normalizer — use the real one so tests exercise actual behavior.
+  invoiceUrl: (await importOriginal<typeof import('./mayar')>()).invoiceUrl,
 }));
 
 const getBookingById = vi.fn();
@@ -165,12 +167,25 @@ describe('reconcileBookingStatus', () => {
     expect(updateBookingStatus).toHaveBeenCalledWith('KB-1', 'expired');
   });
 
-  it('returns the payment link while still unpaid', async () => {
+  it('returns the payment link while still unpaid (detail shape: slug link + full paymentUrl)', async () => {
     getBookingById.mockResolvedValue(booking());
-    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'unpaid', link: 'https://x.myr.id/invoices/abc' });
+    getInvoice.mockResolvedValue({
+      id: 'inv-1',
+      status: 'unpaid',
+      link: 'abc123slug',
+      paymentUrl: 'https://x.mayar.shop/invoices/abc123slug',
+    });
     const r = await reconcileBookingStatus('KB-1', ORIGIN);
     expect(r?.status).toBe('pending_payment');
-    expect(r?.paymentUrl).toBe('https://x.myr.id/invoices/abc');
+    expect(r?.paymentUrl).toBe('https://x.mayar.shop/invoices/abc123slug');
+  });
+
+  it('never exposes a bare slug as the payment url', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'unpaid', link: 'abc123slug' });
+    const r = await reconcileBookingStatus('KB-1', ORIGIN);
+    expect(r?.status).toBe('pending_payment');
+    expect(r?.paymentUrl).toBeNull();
   });
 
   it('stays pending (no crash) when Mayar is down', async () => {

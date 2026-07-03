@@ -1,6 +1,6 @@
 // src/lib/konsultasi-payment-confirm.ts
 import 'server-only';
-import { createInvoice, getInvoice, isMayarConfigured } from './mayar';
+import { createInvoice, getInvoice, invoiceUrl, isMayarConfigured } from './mayar';
 import {
   getBookingById,
   listBookings,
@@ -161,7 +161,7 @@ export async function reconcileBookingStatus(
         statusUrl: `${origin}/konsultasi/booking/status/${bookingId}`,
       });
       await setInvoiceId(bookingId, invoice.id);
-      return result('pending_payment', invoice.link ?? null);
+      return result('pending_payment', invoiceUrl(invoice));
     } catch (error) {
       console.error(`reconcileBookingStatus: self-heal invoice failed for ${bookingId}`, error);
       return result('pending_payment');
@@ -180,7 +180,7 @@ export async function reconcileBookingStatus(
       await updateBookingStatus(bookingId, 'expired');
       return result('expired');
     }
-    return result('pending_payment', invoice.link ?? null);
+    return result('pending_payment', invoiceUrl(invoice));
   } catch (error) {
     // Mayar down — stay pending; the page polls again shortly.
     console.error(`reconcileBookingStatus: reconcile failed for ${bookingId}`, error);

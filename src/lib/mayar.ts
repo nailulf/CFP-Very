@@ -9,11 +9,28 @@ type MayarEnvelope<T> = { statusCode: number; messages: string; data: T };
 export type MayarInvoice = {
   id: string;
   transactionId?: string;
-  /** Hosted payment page URL for the customer. */
+  /** Create endpoint: full hosted payment URL. Detail/list endpoints: bare slug. */
   link?: string;
+  /** Detail endpoint: full hosted payment URL (the `link` there is only a slug). */
+  paymentUrl?: string;
   /** Present on the detail endpoint: 'paid' | 'unpaid' | 'closed'. */
   status?: string;
 };
+
+const ABSOLUTE_URL = /^https?:\/\//;
+
+/**
+ * Customer-facing hosted payment URL for an invoice, or null. Mayar's create
+ * response puts the full URL in `link`, but detail/list responses return only
+ * a slug there and carry the full URL in `paymentUrl` — normalize here so a
+ * bare slug is never handed to the UI (it would render as a broken relative
+ * href on our own domain).
+ */
+export function invoiceUrl(invoice: MayarInvoice): string | null {
+  if (invoice.paymentUrl && ABSOLUTE_URL.test(invoice.paymentUrl)) return invoice.paymentUrl;
+  if (invoice.link && ABSOLUTE_URL.test(invoice.link)) return invoice.link;
+  return null;
+}
 
 export function isMayarConfigured(): boolean {
   return Boolean(process.env.MAYAR_API_KEY);

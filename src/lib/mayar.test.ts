@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createInvoice, getInvoice, isMayarConfigured } from './mayar';
+import { createInvoice, getInvoice, invoiceUrl, isMayarConfigured } from './mayar';
 
 const fetchMock = vi.fn();
 
@@ -93,5 +93,27 @@ describe('getInvoice', () => {
     expect(inv.status).toBe('paid');
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.mayar.club/hl/v2/invoices/inv-1');
+  });
+});
+
+describe('invoiceUrl', () => {
+  it('prefers the detail endpoint paymentUrl (full URL)', () => {
+    expect(
+      invoiceUrl({ id: 'i', link: 'eoq8cdn53g', paymentUrl: 'https://x.mayar.shop/invoices/eoq8cdn53g' }),
+    ).toBe('https://x.mayar.shop/invoices/eoq8cdn53g');
+  });
+
+  it('accepts a full URL in link (create endpoint shape)', () => {
+    expect(invoiceUrl({ id: 'i', link: 'https://x.mayar.shop/invoices/abc' })).toBe(
+      'https://x.mayar.shop/invoices/abc',
+    );
+  });
+
+  it('never returns a bare slug (would render as a broken relative href)', () => {
+    expect(invoiceUrl({ id: 'i', link: 'eoq8cdn53g' })).toBeNull();
+  });
+
+  it('returns null when no url fields exist', () => {
+    expect(invoiceUrl({ id: 'i' })).toBeNull();
   });
 });
