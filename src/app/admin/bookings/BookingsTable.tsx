@@ -25,6 +25,25 @@ const fmtIDR = (raw: string) => {
   return Number.isFinite(n) && raw !== '' ? `Rp${n.toLocaleString('id-ID')}` : raw;
 };
 
+/**
+ * Digits-only, normalized to the 62-country-code format wa.me requires.
+ * The sheet stores phone numbers via Sheets' USER_ENTERED input, which
+ * parses a leading "0" as a number and drops it (081... -> 81...) — so a
+ * bare local number with no leading 0 is just as likely to mean "081..."
+ * as an already-international one; only a number already starting with 62
+ * is left alone.
+ */
+const waHref = (phone: string) => {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return null;
+  const withCountryCode = digits.startsWith('62')
+    ? digits
+    : digits.startsWith('0')
+      ? `62${digits.slice(1)}`
+      : `62${digits}`;
+  return `https://wa.me/${withCountryCode}`;
+};
+
 export default function BookingsTable({
   initial,
   initialError,
@@ -101,11 +120,13 @@ export default function BookingsTable({
             <thead>
               <tr className="text-left text-[#666666] border-b border-[#E0EBF5]">
                 <th className="px-4 py-3 font-semibold">Nama</th>
+                <th className="px-4 py-3 font-semibold">No. HP</th>
                 <th className="px-4 py-3 font-semibold">Paket</th>
                 <th className="px-4 py-3 font-semibold">Jadwal</th>
                 <th className="px-4 py-3 font-semibold">Topik</th>
                 <th className="px-4 py-3 font-semibold">Nilai</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">Link Bayar</th>
               </tr>
             </thead>
             <tbody>
@@ -114,6 +135,20 @@ export default function BookingsTable({
                   <td className="px-4 py-3">
                     <div className="font-semibold text-[#1A1918]">{b.name}</div>
                     <div className="text-[#9C9B99]">{b.email}</div>
+                  </td>
+                  <td className="px-4 py-3 text-[#1A1918]">
+                    {waHref(b.phone) ? (
+                      <a
+                        href={waHref(b.phone)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[#4F9DA6] underline"
+                      >
+                        {b.phone}
+                      </a>
+                    ) : (
+                      b.phone || '-'
+                    )}
                   </td>
                   <td className="px-4 py-3 text-[#1A1918]">{b.service}</td>
                   <td className="px-4 py-3 text-[#1A1918]">{b.date ? `${b.date} ${b.time ?? ''}` : b.bookingDate}</td>
@@ -130,6 +165,20 @@ export default function BookingsTable({
                         <option key={o.value} value={o.value}>{o.label}</option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-4 py-3">
+                    {b.paymentLink ? (
+                      <a
+                        href={b.paymentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-[#205781] underline"
+                      >
+                        Buka
+                      </a>
+                    ) : (
+                      <span className="text-[#9C9B99]">-</span>
+                    )}
                   </td>
                 </tr>
               ))}

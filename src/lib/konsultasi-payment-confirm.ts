@@ -7,6 +7,7 @@ import {
   markPaid,
   setInvoiceId,
   setMeetLink,
+  setPaymentLink,
   updateBookingStatus,
   type BookingDetail,
 } from './konsultasi-store';
@@ -161,7 +162,9 @@ export async function reconcileBookingStatus(
         statusUrl: `${origin}/konsultasi/booking/status/${bookingId}`,
       });
       await setInvoiceId(bookingId, invoice.id);
-      return result('pending_payment', invoiceUrl(invoice));
+      const selfHealedUrl = invoiceUrl(invoice);
+      if (selfHealedUrl) await setPaymentLink(bookingId, selfHealedUrl);
+      return result('pending_payment', selfHealedUrl);
     } catch (error) {
       console.error(`reconcileBookingStatus: self-heal invoice failed for ${bookingId}`, error);
       return result('pending_payment');

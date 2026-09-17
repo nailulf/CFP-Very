@@ -131,6 +131,7 @@ export type Booking = {
   time: string | null;
   topic: string;
   createdAt: string;
+  paymentLink: string;
 };
 
 /** All bookings from the "Order" sheet, newest first. */
@@ -139,7 +140,7 @@ export async function listBookings(): Promise<Booking[]> {
   if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
 
   const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
-  const rows = await readSheetValues(sheetId, `${tab}!A:M`);
+  const rows = await readSheetValues(sheetId, `${tab}!A:P`);
 
   const out: Booking[] = [];
   for (let i = 1; i < rows.length; i++) {
@@ -160,6 +161,7 @@ export async function listBookings(): Promise<Booking[]> {
       time: parsed?.time ?? null,
       topic: row[TOPIC_COL_INDEX] || '',
       createdAt: row[CREATED_AT_COL_INDEX] || '',
+      paymentLink: (row[PAYMENT_LINK_COL_INDEX] || '').trim(),
     });
   }
   return out.reverse();
@@ -188,6 +190,7 @@ const INVOICE_COL_INDEX = 7; // column H — "DOKU Invoice ID" (now: Mayar invoi
 const METHOD_COL_INDEX = 8; // column I — "Payment Method"
 const PAID_AT_COL_INDEX = 10; // column K — "Paid At"
 const MEET_LINK_COL_INDEX = 14; // column O — "Meet Link" (additive, labelled lazily)
+const PAYMENT_LINK_COL_INDEX = 15; // column P — "Payment Link" (additive, labelled lazily)
 
 /** True if a booking id exists in the "Order" sheet. */
 export async function bookingExists(id: string): Promise<boolean> {
@@ -239,7 +242,7 @@ export async function getBookingById(id: string): Promise<BookingDetail | null> 
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
   const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
-  const rows = await readSheetValues(sheetId, `${tab}!A:O`);
+  const rows = await readSheetValues(sheetId, `${tab}!A:P`);
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     if ((row?.[ID_COL_INDEX] || '').trim() !== id) continue;
@@ -258,6 +261,7 @@ export async function getBookingById(id: string): Promise<BookingDetail | null> 
       time: parsed?.time ?? null,
       topic: row[TOPIC_COL_INDEX] || '',
       createdAt: row[CREATED_AT_COL_INDEX] || '',
+      paymentLink: (row[PAYMENT_LINK_COL_INDEX] || '').trim(),
       invoiceId: (row[INVOICE_COL_INDEX] || '').trim(),
       paymentMethod: row[METHOD_COL_INDEX] || '',
       paidAt: row[PAID_AT_COL_INDEX] || '',
@@ -302,6 +306,30 @@ export async function setMeetLink(id: string, link: string): Promise<boolean> {
   for (let i = 1; i < rows.length; i++) {
     if ((rows[i]?.[ID_COL_INDEX] || '').trim() === id) {
       await updateSheetRange(sheetId, `${tab}!O${i + 1}`, [[sanitizeCell(link)]]);
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Record the Mayar hosted checkout link (column P — additive, labelled
+ * lazily like column O in setMeetLink). Captured once at invoice-creation
+ * time since it isn't derivable from the invoice id alone; lets admin
+ * recover/resend it even if the Mayar invoice later expires. Returns false
+ * if the id is not found.
+ */
+export async function setPaymentLink(id: string, link: string): Promise<boolean> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
+  const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
+  const rows = await readSheetValues(sheetId, `${tab}!A:P`);
+  if (rows.length > 0 && !rows[0][PAYMENT_LINK_COL_INDEX]) {
+    await updateSheetRange(sheetId, `${tab}!P1`, [['Payment Link']]);
+  }
+  for (let i = 1; i < rows.length; i++) {
+    if ((rows[i]?.[ID_COL_INDEX] || '').trim() === id) {
+      await updateSheetRange(sheetId, `${tab}!P${i + 1}`, [[sanitizeCell(link)]]);
       return true;
     }
   }

@@ -17,6 +17,7 @@ const listBookings = vi.fn();
 const markPaid = vi.fn();
 const setInvoiceId = vi.fn();
 const setMeetLink = vi.fn();
+const setPaymentLink = vi.fn();
 const updateBookingStatus = vi.fn();
 vi.mock('./konsultasi-store', () => ({
   getBookingById: (...a: unknown[]) => getBookingById(...a),
@@ -24,6 +25,7 @@ vi.mock('./konsultasi-store', () => ({
   markPaid: (...a: unknown[]) => markPaid(...a),
   setInvoiceId: (...a: unknown[]) => setInvoiceId(...a),
   setMeetLink: (...a: unknown[]) => setMeetLink(...a),
+  setPaymentLink: (...a: unknown[]) => setPaymentLink(...a),
   updateBookingStatus: (...a: unknown[]) => updateBookingStatus(...a),
 }));
 
@@ -139,6 +141,7 @@ describe('reconcileBookingStatus', () => {
     expect(r?.status).toBe('pending_payment');
     expect(r?.paymentUrl).toBe('https://x.myr.id/invoices/new');
     expect(setInvoiceId).toHaveBeenCalledWith('KB-1', 'inv-new');
+    expect(setPaymentLink).toHaveBeenCalledWith('KB-1', 'https://x.myr.id/invoices/new');
     const arg = createInvoice.mock.calls[0][0];
     expect(arg.statusUrl).toBe('https://site.com/konsultasi/booking/status/KB-1');
     expect(arg.amount).toBe(500000);

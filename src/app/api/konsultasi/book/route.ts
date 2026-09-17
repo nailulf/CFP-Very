@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isSlotAvailable } from '@/lib/konsultasi-availability';
-import { appendBooking, setInvoiceId } from '@/lib/konsultasi-store';
+import { appendBooking, setInvoiceId, setPaymentLink } from '@/lib/konsultasi-store';
 import { KONSULTASI_PACKAGE_IDS, getKonsultasiPackage } from '@/lib/konsultasi-packages';
 import { getAvailabilityConfig, getPackagePricing } from '@/lib/settings-store';
 import { resolveAmount } from '@/lib/settings-config';
@@ -86,6 +86,7 @@ export async function POST(request: Request) {
         });
         await setInvoiceId(bookingId, invoice.id);
         paymentUrl = invoiceUrl(invoice);
+        if (paymentUrl) await setPaymentLink(bookingId, paymentUrl);
       } catch (error) {
         console.error('Mayar invoice creation failed (status page will self-heal):', error);
       }
