@@ -60,6 +60,7 @@ beforeEach(() => {
   isMayarConfigured.mockReturnValue(true);
   getAvailabilityConfig.mockResolvedValue({ slotMinutes: 90 });
   createBookingEvent.mockResolvedValue({ meetLink: 'https://meet.google.com/abc' });
+  setMeetLink.mockResolvedValue(true);
 });
 
 describe('confirmPayment', () => {
@@ -201,6 +202,33 @@ describe('reconcileBookingStatus', () => {
 
   it('retries the calendar event for a paid booking with no meet link yet', async () => {
     getBookingById.mockResolvedValue(booking({ paymentStatus: 'paid', meetLink: '' }));
+    const r = await reconcileBookingStatus('KB-1', ORIGIN);
+    expect(r?.status).toBe('paid');
+    expect(createBookingEvent).toHaveBeenCalled();
+    expect(r?.meetLink).toBe('https://meet.google.com/abc');
+  });
+
+  it('does not create a duplicate calendar event when a concurrent call already claimed it', async () => {
+    // Initial fetch sees no meet link yet; the re-check right before creating
+    // the event sees another in-flight call's claim (e.g. the webhook firing
+    // alongside this status-page poll) and backs off instead of racing it.
+    getBookingById
+      .mockResolvedValueOnce(booking({ paymentStatus: 'paid', meetLink: '' }))
+      .mockResolvedValueOnce(booking({ paymentStatus: 'paid', meetLink: `__creating__:${Date.now()}` }));
+    const r = await reconcileBookingStatus('KB-1', ORIGIN);
+    expect(r?.status).toBe('paid');
+    expect(r?.meetLink).toBeNull();
+    expect(createBookingEvent).not.toHaveBeenCalled();
+    expect(setMeetLink).not.toHaveBeenCalled();
+  });
+
+  it('reclaims a stale (abandoned) claim and creates the event', async () => {
+    // A claim older than the staleness window means a prior request crashed
+    // or timed out mid-flight — treat it as abandoned rather than blocking
+    // the booking from ever getting a calendar event.
+    getBookingById
+      .mockResolvedValueOnce(booking({ paymentStatus: 'paid', meetLink: '' }))
+      .mockResolvedValueOnce(booking({ paymentStatus: 'paid', meetLink: `__creating__:${Date.now() - 60_000}` }));
     const r = await reconcileBookingStatus('KB-1', ORIGIN);
     expect(r?.status).toBe('paid');
     expect(createBookingEvent).toHaveBeenCalled();

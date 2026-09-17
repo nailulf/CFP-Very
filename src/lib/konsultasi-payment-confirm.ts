@@ -20,13 +20,45 @@ import { isPaymentExpired, paymentDeadline, PAYMENT_WINDOW_MS } from './konsulta
 // 'expired'); admin-set cancelled/refunded are never overridden by a webhook.
 const CONFIRMABLE_STATUSES = new Set(['pending_payment', 'expired', 'menunggu_verifikasi']);
 
+// Placeholder written to column O to claim "creating the calendar event"
+// before the slow Calendar API call, so a concurrent trigger for the same
+// booking (Mayar's webhook firing alongside the status page's poll, both of
+// which react to the same payment) sees the claim and backs off instead of
+// both creating a duplicate event. Timestamped so a claim orphaned by a
+// crashed/timed-out request doesn't block the booking forever.
+const CALENDAR_CLAIM_PREFIX = '__creating__:';
+const CALENDAR_CLAIM_STALE_MS = 30_000;
+
+function isActiveClaim(value: string): boolean {
+  if (!value.startsWith(CALENDAR_CLAIM_PREFIX)) return false;
+  const ts = Number(value.slice(CALENDAR_CLAIM_PREFIX.length));
+  return Number.isFinite(ts) && Date.now() - ts <= CALENDAR_CLAIM_STALE_MS;
+}
+
+/** A meetLink cell value that's an actual link, not an empty/claim placeholder. */
+function isRealMeetLink(value: string): boolean {
+  return Boolean(value) && !value.startsWith(CALENDAR_CLAIM_PREFIX);
+}
+
 /**
  * Create the Calendar event + Meet invite for a paid booking. Idempotent via
  * column O; best-effort exactly like the old book-route behavior.
  */
 async function ensureCalendarEvent(b: BookingDetail): Promise<string | null> {
-  if (b.meetLink) return b.meetLink;
+  if (isRealMeetLink(b.meetLink)) return b.meetLink;
   if (!b.date || !b.time) return null;
+
+  // b may be a stale snapshot fetched before slower work (Mayar
+  // re-verification, markPaid) — re-check right before acting so a
+  // concurrent caller that already finished (or is mid-flight) is seen.
+  const fresh = await getBookingById(b.id);
+  const freshLink = fresh?.meetLink || '';
+  if (isRealMeetLink(freshLink)) return freshLink;
+  if (isActiveClaim(freshLink)) return null; // another call is creating it right now
+
+  const claimed = await setMeetLink(b.id, `${CALENDAR_CLAIM_PREFIX}${Date.now()}`);
+  if (!claimed) return null;
+
   const config = await getAvailabilityConfig();
   const event = await createBookingEvent({
     date: b.date,
@@ -41,8 +73,14 @@ async function ensureCalendarEvent(b: BookingDetail): Promise<string | null> {
     ].join('\n'),
     clientEmail: b.email,
   });
-  if (event.meetLink) await setMeetLink(b.id, event.meetLink);
-  return event.meetLink ?? null;
+  if (event.meetLink) {
+    await setMeetLink(b.id, event.meetLink);
+    return event.meetLink;
+  }
+  // Calendar isn't configured, or the API call failed — release the claim so
+  // the next poll/webhook retries instead of getting stuck.
+  await setMeetLink(b.id, '');
+  return null;
 }
 
 /**
@@ -108,7 +146,7 @@ export async function reconcileBookingStatus(
   const result = (status: string, paymentUrl: string | null = null): BookingStatusResult => ({
     status,
     paymentUrl,
-    meetLink: b.meetLink || null,
+    meetLink: isRealMeetLink(b.meetLink) ? b.meetLink : null,
     service: b.service,
     date: b.date,
     time: b.time,
@@ -129,7 +167,8 @@ export async function reconcileBookingStatus(
       try {
         if (await confirmPayment(bookingId)) {
           const fresh = await getBookingById(bookingId);
-          return { ...result('paid'), meetLink: fresh?.meetLink || null };
+          const freshLink = fresh?.meetLink || '';
+          return { ...result('paid'), meetLink: isRealMeetLink(freshLink) ? freshLink : null };
         }
       } catch (error) {
         console.error(`reconcileBookingStatus: last-chance check failed for ${bookingId}`, error);
