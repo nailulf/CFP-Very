@@ -19,6 +19,9 @@ const setInvoiceId = vi.fn();
 const setMeetLink = vi.fn();
 const setPaymentLink = vi.fn();
 const updateBookingStatus = vi.fn();
+const claimConfirmationEmail = vi.fn();
+const markConfirmationEmailSent = vi.fn();
+const releaseConfirmationEmailClaim = vi.fn();
 vi.mock('./konsultasi-store', () => ({
   getBookingById: (...a: unknown[]) => getBookingById(...a),
   listBookings: (...a: unknown[]) => listBookings(...a),
@@ -27,6 +30,16 @@ vi.mock('./konsultasi-store', () => ({
   setMeetLink: (...a: unknown[]) => setMeetLink(...a),
   setPaymentLink: (...a: unknown[]) => setPaymentLink(...a),
   updateBookingStatus: (...a: unknown[]) => updateBookingStatus(...a),
+  claimConfirmationEmail: (...a: unknown[]) => claimConfirmationEmail(...a),
+  markConfirmationEmailSent: (...a: unknown[]) => markConfirmationEmailSent(...a),
+  releaseConfirmationEmailClaim: (...a: unknown[]) => releaseConfirmationEmailClaim(...a),
+}));
+
+const sendMail = vi.fn();
+const isMailerConfigured = vi.fn(() => true);
+vi.mock('./mailer', () => ({
+  sendMail: (...a: unknown[]) => sendMail(...a),
+  isMailerConfigured: () => isMailerConfigured(),
 }));
 
 const createBookingEvent = vi.fn();
@@ -39,7 +52,7 @@ vi.mock('./settings-store', () => ({
   getAvailabilityConfig: (...a: unknown[]) => getAvailabilityConfig(...a),
 }));
 
-import { confirmPayment, reconcileBookingStatus } from './konsultasi-payment-confirm';
+import { confirmPayment, confirmPaymentManually, reconcileBookingStatus } from './konsultasi-payment-confirm';
 
 const FRESH = new Date().toISOString();
 const STALE = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
@@ -61,6 +74,10 @@ beforeEach(() => {
   getAvailabilityConfig.mockResolvedValue({ slotMinutes: 90 });
   createBookingEvent.mockResolvedValue({ meetLink: 'https://meet.google.com/abc' });
   setMeetLink.mockResolvedValue(true);
+  isMailerConfigured.mockReturnValue(true);
+  claimConfirmationEmail.mockResolvedValue(true);
+  sendMail.mockResolvedValue(true);
+  process.env.NEXT_PUBLIC_BASE_URL = 'https://temantumbuh.id';
 });
 
 describe('confirmPayment', () => {
@@ -240,5 +257,200 @@ describe('reconcileBookingStatus', () => {
     const r = await reconcileBookingStatus('KB-1', ORIGIN);
     expect(r?.status).toBe('cancelled');
     expect(getInvoice).not.toHaveBeenCalled();
+  });
+});
+
+describe('payment-confirmed email', () => {
+  it('emails the customer once Mayar confirms the payment', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+
+    await confirmPayment('KB-1');
+
+    expect(sendMail).toHaveBeenCalledTimes(1);
+    const sent = sendMail.mock.calls[0][0] as { to: string; subject: string; html: string };
+    expect(sent.to).toBe('a@x.com');
+    expect(sent.subject).toContain('KB-1');
+    expect(sent.html).toContain('https://meet.google.com/abc');
+  });
+
+  it('records the send so a later trigger does not email again', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+
+    await confirmPayment('KB-1');
+
+    expect(markConfirmationEmailSent).toHaveBeenCalledWith('KB-1');
+    expect(releaseConfirmationEmailClaim).not.toHaveBeenCalled();
+  });
+
+  it('stays silent when another request already holds the send claim', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+    claimConfirmationEmail.mockResolvedValue(false);
+
+    await confirmPayment('KB-1');
+
+    expect(sendMail).not.toHaveBeenCalled();
+  });
+
+  it('releases the claim when the send fails, so the next trigger retries', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+    sendMail.mockRejectedValue(new Error('smtp down'));
+
+    await expect(confirmPayment('KB-1')).resolves.toBe(true);
+
+    expect(releaseConfirmationEmailClaim).toHaveBeenCalledWith('KB-1');
+    expect(markConfirmationEmailSent).not.toHaveBeenCalled();
+  });
+
+  it('never emails a booking Mayar has not confirmed', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'unpaid' });
+
+    await confirmPayment('KB-1');
+
+    expect(claimConfirmationEmail).not.toHaveBeenCalled();
+    expect(sendMail).not.toHaveBeenCalled();
+  });
+
+  it('still confirms the payment when the mailer is not configured', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+    isMailerConfigured.mockReturnValue(false);
+
+    await expect(confirmPayment('KB-1')).resolves.toBe(true);
+
+    expect(markPaid).toHaveBeenCalled();
+    expect(sendMail).not.toHaveBeenCalled();
+  });
+
+  it('sends the confirmation even when the calendar produced no Meet link', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+    createBookingEvent.mockResolvedValue({});
+
+    await confirmPayment('KB-1');
+
+    expect(sendMail).toHaveBeenCalledTimes(1);
+    const sent = sendMail.mock.calls[0][0] as { text: string };
+    expect(sent.text).toMatch(/menyusul/i);
+  });
+
+  it('emails from the status-page reconcile path too (missed webhook)', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+
+    await reconcileBookingStatus('KB-1', 'https://temantumbuh.id');
+
+    expect(sendMail).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('confirmPaymentManually (admin marks a booking paid)', () => {
+  it('marks paid with the manual method, not mayar, and never calls Mayar', async () => {
+    getBookingById.mockResolvedValue(booking());
+
+    expect(await confirmPaymentManually('KB-1')).toBe(true);
+
+    expect(markPaid).toHaveBeenCalledWith('KB-1', 'manual');
+    expect(getInvoice).not.toHaveBeenCalled();
+  });
+
+  it('creates the calendar event and emails the customer', async () => {
+    getBookingById.mockResolvedValue(booking());
+
+    await confirmPaymentManually('KB-1');
+
+    expect(createBookingEvent).toHaveBeenCalled();
+    expect(setMeetLink).toHaveBeenCalledWith('KB-1', 'https://meet.google.com/abc');
+    expect(sendMail).toHaveBeenCalledTimes(1);
+    const sent = sendMail.mock.calls[0][0] as { to: string; html: string };
+    expect(sent.to).toBe('a@x.com');
+    expect(sent.html).toContain('https://meet.google.com/abc');
+  });
+
+  it('returns false for a missing booking', async () => {
+    getBookingById.mockResolvedValue(null);
+
+    expect(await confirmPaymentManually('KB-404')).toBe(false);
+    expect(markPaid).not.toHaveBeenCalled();
+  });
+
+  it('backfills method + paid-at for a booking already flipped to paid without them', async () => {
+    // The production case (KB-MU6URVLR): column G said paid, I and K were empty.
+    getBookingById.mockResolvedValue(booking({ paymentStatus: 'paid', paymentMethod: '', paidAt: '' }));
+
+    await confirmPaymentManually('KB-1');
+
+    expect(markPaid).toHaveBeenCalledWith('KB-1', 'manual');
+  });
+
+  it('does not overwrite a Mayar-recorded payment method', async () => {
+    getBookingById.mockResolvedValue(
+      booking({ paymentStatus: 'paid', paymentMethod: 'mayar', paidAt: FRESH }),
+    );
+
+    await confirmPaymentManually('KB-1');
+
+    expect(markPaid).not.toHaveBeenCalled();
+    expect(createBookingEvent).toHaveBeenCalled(); // fulfillment still retried
+  });
+
+  it('leaves a hand-pasted Meet link alone by default', async () => {
+    getBookingById.mockResolvedValue(booking({ meetLink: 'https://meet.google.com/hand-pasted' }));
+
+    await confirmPaymentManually('KB-1');
+
+    expect(createBookingEvent).not.toHaveBeenCalled();
+    expect(setMeetLink).not.toHaveBeenCalled();
+  });
+
+  it('re-creates the event over a hand-pasted Meet link when forced', async () => {
+    getBookingById.mockResolvedValue(booking({ meetLink: 'https://meet.google.com/hand-pasted' }));
+
+    await confirmPaymentManually('KB-1', { recreateCalendarEvent: true });
+
+    expect(createBookingEvent).toHaveBeenCalled();
+    expect(setMeetLink).toHaveBeenLastCalledWith('KB-1', 'https://meet.google.com/abc');
+  });
+
+  it('restores the previous Meet link when a forced re-create fails', async () => {
+    getBookingById.mockResolvedValue(booking({ meetLink: 'https://meet.google.com/hand-pasted' }));
+    createBookingEvent.mockResolvedValue({});
+
+    await confirmPaymentManually('KB-1', { recreateCalendarEvent: true });
+
+    expect(setMeetLink).toHaveBeenLastCalledWith('KB-1', 'https://meet.google.com/hand-pasted');
+  });
+
+  it('restores the previous Meet link when the calendar API throws mid-recreate', async () => {
+    getBookingById.mockResolvedValue(booking({ meetLink: 'https://meet.google.com/hand-pasted' }));
+    createBookingEvent.mockRejectedValue(new Error('calendar down'));
+
+    await confirmPaymentManually('KB-1', { recreateCalendarEvent: true });
+
+    expect(setMeetLink).toHaveBeenLastCalledWith('KB-1', 'https://meet.google.com/hand-pasted');
+  });
+
+  it('backs off when a concurrent call already claimed the calendar event', async () => {
+    getBookingById
+      .mockResolvedValueOnce(booking())
+      .mockResolvedValueOnce(booking({ meetLink: `__creating__:${Date.now()}` }));
+
+    await confirmPaymentManually('KB-1', { recreateCalendarEvent: true });
+
+    expect(createBookingEvent).not.toHaveBeenCalled();
+  });
+
+  it('still confirms when the calendar and mailer are unavailable', async () => {
+    getBookingById.mockResolvedValue(booking());
+    createBookingEvent.mockRejectedValue(new Error('calendar down'));
+    isMailerConfigured.mockReturnValue(false);
+
+    await expect(confirmPaymentManually('KB-1')).resolves.toBe(true);
+
+    expect(markPaid).toHaveBeenCalledWith('KB-1', 'manual');
   });
 });
