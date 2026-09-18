@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+// Plus Jakarta Sans was drawn by Tokotype for the city of Jakarta — the
+// house face. Source Serif 4 italic carries the few editorial lines
+// (service quotes); IBM Plex Mono sets labels, figures and overlines.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+});
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  style: ["italic"],
+  weight: ["400", "600"],
+  variable: "--font-source-serif",
+});
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-plex-mono",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.temantumbuh.com"),
@@ -56,7 +74,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="scroll-smooth">
-      <body className={`${outfit.variable} font-sans antialiased`}>
+      <body
+        className={`${jakarta.variable} ${sourceSerif.variable} ${plexMono.variable} font-sans antialiased`}
+      >
         <GoogleAnalytics />
         <Script
           async
