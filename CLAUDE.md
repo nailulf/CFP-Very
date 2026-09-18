@@ -72,6 +72,16 @@ Before implementing any UI work:
 | `subtle` | `#9C9B99` | Placeholder, tertiary text |
 | `navy-card` | `#1A3A50` | Cards inside dark sections |
 
+**Card tints** (homepage cards; every step is a dilution of the brand blues and teal — no new hue enters the palette here):
+
+| Token | Hex | Pairs with |
+|-------|-----|------------|
+| `tint-blue` | `#E9F1F8` | `tint-blue-2` `#D7E5F0` |
+| `tint-teal` | `#E4EFEC` | `tint-teal-2` `#CFE3DD` |
+| `tint-slate` | `#E2E9F0` | `tint-slate-2` `#CFDCE9` |
+| `cream` | `#FBF6EE` | warm base — hero/nav/footer only |
+| `peach` | `#F7E7D4` | glow behind the hero photo only |
+
 **Status colors**:
 
 | State | Background | Text/Accent |
@@ -85,7 +95,9 @@ Before implementing any UI work:
 
 ### Typography
 
-**Fonts**: **Outfit** (headings, body, UI) · **JetBrains Mono** (code, labels, mono data)
+**Fonts**: **Plus Jakarta Sans** (headings, body, UI) · **Source Serif 4 italic** (editorial pull quotes only) · **IBM Plex Mono** (labels, overlines, figures)
+
+Loaded in `src/app/layout.tsx` via `next/font/google`, exposed as `--font-sans`, `--font-serif`, `--font-mono` in `globals.css`. Plus Jakarta Sans replaced Outfit in the 2026-09-19 homepage redesign; Outfit is no longer used anywhere.
 
 | Role | Size | Weight | Notes |
 |------|------|--------|-------|
@@ -101,7 +113,7 @@ Before implementing any UI work:
 | Logo | 20px | 700 | letter-spacing: -0.5 |
 | Nav links | 14px | 500 | |
 
-Use **JetBrains Mono** for: section overline labels (e.g. "WARNA", "TIPOGRAFI"), code snippets, monospaced data.
+Use **IBM Plex Mono** for: section overline labels, format/category chips, prices and other tabular figures. Use **Source Serif 4 italic** sparingly — currently only the first-person quotes on the homepage service cards. Never for UI.
 
 ### Spacing & Layout
 
@@ -133,7 +145,7 @@ Use **JetBrains Mono** for: section overline labels (e.g. "WARNA", "TIPOGRAFI"),
 ### Navigation
 
 - Full-width, `padding: 16px 80px`
-- Logo (Outfit 700) on the left, nav links center-right, CTA button far right
+- Logo (Plus Jakarta Sans 700) on the left, nav links center-right, CTA button far right
 - CTA button: pill shape, primary gradient or solid `#205781`
 
 ### Buttons
@@ -238,16 +250,18 @@ src/
       Footer.tsx
       SiteChrome.tsx                  # Wraps LanguageProvider + layout chrome
     sections/
-      Hero.tsx
-      Services.tsx
-      ServiceInfoCard.tsx
-      HowItWorks.tsx
-      SocialProof.tsx
-      BlogPreview.tsx
-      FinalCTA.tsx
-      ContactPanel.tsx
-      DigitalProductsCard.tsx
-      DigitalProductsModal.tsx
+      DigitalProductsModal.tsx        # shared product modal
+      home/                           # homepage only — one file per band
+        HomeHero.tsx
+        ClientStrip.tsx
+        ProblemCards.tsx
+        HomeServices.tsx              # id="services" — load-bearing anchor
+        CorporateTeaser.tsx
+        Testimonials.tsx              # id="testimoni" — load-bearing anchor
+        ProductCarousel.tsx           # driven by src/data/digitalProducts.ts
+        HomeFinalCTA.tsx
+      konsultasi/
+      korporat/
     ui/
       Badge.tsx
       Button.tsx
@@ -308,16 +322,31 @@ The webapp is **bilingual: Indonesian (ID) and English (EN)**. **Indonesian is t
 
 ---
 
+## Homepage anchors — do not rename
+
+`Navbar.tsx` and `Footer.tsx` render on every page and link to homepage
+anchors defined in `translations.ts` (duplicated per language). Renaming
+any of these ids breaks navigation site-wide:
+
+| id | Section | Linked from |
+|----|---------|-------------|
+| `services` | `HomeServices.tsx` | footer x3, hero CTA, problem CTA |
+| `testimoni` | `Testimonials.tsx` | navbar, footer |
+
+`#about` and `#how-it-works` no longer exist — those sections were removed
+in the 2026-09-19 redesign and their links now point at `/#testimoni` and
+`/konsultasi`.
+
 ## Design Rules (Non-Negotiable)
 
 1. **Always reference `design website.pen`** before writing any UI code
 2. **Never hardcode colors** that aren't in the design system above
 3. **Never invent new font sizes or weights** not listed in the typography table
 4. **Maintain the Checkout flow** (Book a Date → Payment → Confirmation) as a 3-step progressive sequence
-5. **Page background is always `#F0F7FA`** — never white or gray variants
+5. **Page background is `#F0F7FA`**, alternating with white to give sections rhythm. The warm cream `#FBF6EE` is used *only* by the homepage hero, the navbar and the footer, where it bridges to the apricot ground baked into `hero.png`. Never introduce other background variants.
 6. **Cards are always white** (`#FFFFFF`) with `#E0EBF5` border
 7. **Gradients** go from `#205781` to `#4F9DA6` at 180° — no other gradient combinations
-8. **Primary fonts are Outfit + JetBrains Mono only** — do not introduce other typefaces
+8. **Primary fonts are Plus Jakarta Sans + IBM Plex Mono, with Source Serif 4 italic for pull quotes** — do not introduce other typefaces
 9. **Amber `#f79d35`** is the accent/CTA color — replaces the old gold `#D4A64A`
 10. **Status colors** must use the defined palette (success/warning/error/info) — no ad-hoc reds or greens
 

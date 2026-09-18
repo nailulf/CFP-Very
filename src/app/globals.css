@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-outfit);
+  --font-sans: var(--font-jakarta);
+  --font-serif: var(--font-source-serif);
+  --font-mono: var(--font-plex-mono);
 
   /* Core palette */
   --color-navy: #153A56;
@@ -17,6 +19,21 @@
   --color-mint: #8AD6C1;
   --color-subtle: #9C9B99;
   --color-navy-card: #1A3A50;
+  --color-navy-deep: #0F2C42;
+
+  /* Warm base — sampled from the hero photograph's own ground.
+     Used by the nav, footer and hero only. */
+  --color-cream: #FBF6EE;
+  --color-peach: #F7E7D4;
+
+  /* Card tints. Every step is a dilution of the brand blues and teal —
+     no hue enters the palette here that isn't already in the system. */
+  --color-tint-blue: #E9F1F8;
+  --color-tint-blue-2: #D7E5F0;
+  --color-tint-teal: #E4EFEC;
+  --color-tint-teal-2: #CFE3DD;
+  --color-tint-slate: #E2E9F0;
+  --color-tint-slate-2: #CFDCE9;
 
   /* Status */
   --color-success-bg: #E8F5EE;
