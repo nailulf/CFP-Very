@@ -7,6 +7,8 @@ import { getAvailabilityConfig, getPackagePricing } from '@/lib/settings-store';
 import { resolveAmount } from '@/lib/settings-config';
 import { createInvoice, invoiceUrl, isMayarConfigured } from '@/lib/mayar';
 import { paymentDeadline, PAYMENT_WINDOW_MS } from '@/lib/konsultasi-payment-window';
+import { isMailerConfigured, sendMail } from '@/lib/mailer';
+import { bookingCreatedEmail } from '@/lib/emails/konsultasi';
 
 const schema = z.object({
   packageId: z.enum(KONSULTASI_PACKAGE_IDS),
@@ -68,6 +70,15 @@ export async function POST(request: Request) {
     // invoice, so a Mayar outage must not fail the request. The Calendar event
     // + Meet invite are created after payment (konsultasi-payment-confirm).
     let paymentUrl: string | null = null;
+    const publicOrigin = (
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.MAYAR_PUBLIC_ORIGIN ||
+      new URL(request.url).origin
+    ).replace(/\/+$/, '');
+    const deadline =
+      paymentDeadline(now.toISOString(), date, timeSlot) ??
+      new Date(now.getTime() + PAYMENT_WINDOW_MS);
+
     if (isMayarConfigured()) {
       try {
         const origin = process.env.MAYAR_PUBLIC_ORIGIN || new URL(request.url).origin;
@@ -89,6 +100,29 @@ export async function POST(request: Request) {
         if (paymentUrl) await setPaymentLink(bookingId, paymentUrl);
       } catch (error) {
         console.error('Mayar invoice creation failed (status page will self-heal):', error);
+      }
+    }
+
+    // Confirmation email. Best-effort, exactly like the invoice above: the
+    // booking row is already recorded, so a mail outage must not fail the
+    // request. Fires once here — the booking route is the only caller — so it
+    // needs no send-once claim, unlike the payment-confirmed email.
+    if (isMailerConfigured()) {
+      try {
+        const content = bookingCreatedEmail({
+          bookingId,
+          name,
+          service: pkg.service,
+          date,
+          time: timeSlot,
+          amount,
+          paymentUrl,
+          deadline,
+          statusUrl: `${publicOrigin}/konsultasi/booking/status/${bookingId}`,
+        });
+        await sendMail({ to: email, ...content });
+      } catch (error) {
+        console.error(`Booking confirmation email failed for ${bookingId}:`, error);
       }
     }
 

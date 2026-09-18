@@ -191,6 +191,15 @@ const METHOD_COL_INDEX = 8; // column I — "Payment Method"
 const PAID_AT_COL_INDEX = 10; // column K — "Paid At"
 const MEET_LINK_COL_INDEX = 14; // column O — "Meet Link" (additive, labelled lazily)
 const PAYMENT_LINK_COL_INDEX = 15; // column P — "Payment Link" (additive, labelled lazily)
+const EMAIL_SENT_COL_INDEX = 16; // column Q — "Email Konfirmasi" (additive, labelled lazily)
+
+// Column Q doubles as the send-once lock for the payment-confirmed email: the
+// Mayar webhook and the status-page poll both react to the same payment, so
+// without a claim a customer can get the email twice. Mirrors the calendar
+// claim in konsultasi-payment-confirm.ts — timestamped, so a claim orphaned by
+// a crashed request expires instead of muting the email forever.
+const EMAIL_CLAIM_PREFIX = '__sending__:';
+const EMAIL_CLAIM_STALE_MS = 30_000;
 
 /** True if a booking id exists in the "Order" sheet. */
 export async function bookingExists(id: string): Promise<boolean> {
@@ -334,6 +343,52 @@ export async function setPaymentLink(id: string, link: string): Promise<boolean>
     }
   }
   return false;
+}
+
+/** Write a value to column Q of a booking's row. Returns false if the id is not found. */
+async function writeEmailCell(id: string, value: string): Promise<boolean> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  if (!sheetId) throw new Error('GOOGLE_SHEET_ID not configured');
+  const tab = process.env.GOOGLE_KONSULTASI_TAB || 'Order';
+  const rows = await readSheetValues(sheetId, `${tab}!A:Q`);
+  if (rows.length > 0 && !rows[0][EMAIL_SENT_COL_INDEX]) {
+    await updateSheetRange(sheetId, `${tab}!Q1`, [['Email Konfirmasi']]);
+  }
+  for (let i = 1; i < rows.length; i++) {
+    if ((rows[i]?.[ID_COL_INDEX] || '').trim() !== id) continue;
+    const current = (rows[i][EMAIL_SENT_COL_INDEX] || '').trim();
+    // Only the claim path cares about the current value; callers that write
+    // unconditionally (mark/release) pass through.
+    if (value.startsWith(EMAIL_CLAIM_PREFIX)) {
+      if (current && !current.startsWith(EMAIL_CLAIM_PREFIX)) return false; // already sent
+      const ts = Number(current.slice(EMAIL_CLAIM_PREFIX.length));
+      const held = current.startsWith(EMAIL_CLAIM_PREFIX) && Number.isFinite(ts);
+      if (held && Date.now() - ts <= EMAIL_CLAIM_STALE_MS) return false; // in flight
+    }
+    await updateSheetRange(sheetId, `${tab}!Q${i + 1}`, [[sanitizeCell(value)]]);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Try to become the one caller that sends the payment-confirmed email for this
+ * booking. Returns true when the claim is won — the caller must then follow up
+ * with markConfirmationEmailSent (on success) or releaseConfirmationEmailClaim
+ * (on failure), or the claim expires after 30s and the next trigger retries.
+ */
+export async function claimConfirmationEmail(id: string): Promise<boolean> {
+  return writeEmailCell(id, `${EMAIL_CLAIM_PREFIX}${Date.now()}`);
+}
+
+/** Record that the payment-confirmed email went out (column Q). */
+export async function markConfirmationEmailSent(id: string): Promise<boolean> {
+  return writeEmailCell(id, new Date().toISOString());
+}
+
+/** Drop a claim whose send failed, so the next webhook/poll can retry. */
+export async function releaseConfirmationEmailClaim(id: string): Promise<boolean> {
+  return writeEmailCell(id, '');
 }
 
 /** Mark a booking paid: status (G), payment method (I), paid-at now (K). */
