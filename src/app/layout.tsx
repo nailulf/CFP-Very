@@ -73,10 +73,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="scroll-smooth">
-      <body
-        className={`${jakarta.variable} ${sourceSerif.variable} ${plexMono.variable} font-sans antialiased`}
-      >
+    // The font variables must live on <html>, not <body>: globals.css declares
+    // `--font-sans: var(--font-jakarta)` inside @theme, which Tailwind emits on
+    // :root. A variable defined on <body> is not visible at :root, so the
+    // reference silently fails to resolve and font-sans falls back to the
+    // default ui-sans-serif stack.
+    <html
+      lang="id"
+      className={`${jakarta.variable} ${sourceSerif.variable} ${plexMono.variable} scroll-smooth`}
+    >
+      <body className="font-sans antialiased">
         <GoogleAnalytics />
         <Script
           async
