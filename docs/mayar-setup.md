@@ -21,6 +21,34 @@
 
 > Note: the webhook token rides in the URL, so it appears in Mayar's logs and any proxy access logs. Rotating `MAYAR_WEBHOOK_TOKEN` (env + re-registering the webhook URL) is the revocation mechanism.
 
+## Calendar invites (separate from Mayar)
+
+The Meet invite is created after payment, and needs **two** Google identities to
+agree about one calendar — they fail differently and both fail silently:
+
+| Identity | Does | Needs on `GOOGLE_CALENDAR_ID` |
+|---|---|---|
+| `GOOGLE_OAUTH_REFRESH_TOKEN` | `events.insert` + Meet link | **writer** ("Make changes to events") |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | free/busy for slot availability | **read** |
+
+Point `GOOGLE_CALENDAR_ID` at a dedicated calendar shared with both. Verify with:
+
+```
+node scripts/check-calendar-config.mjs                 # local
+vercel env pull .env.production --environment=production
+node scripts/check-calendar-config.mjs .env.production # production
+```
+
+`404` = the OAuth token is for a different Google account than the calendar.
+`403` = that account has the calendar as a reader, not a writer. A free/busy
+failure is the quiet one: `getCalendarBusy()` fails open to `[]`, so booked
+slots stop being blocked and customers can double-book.
+
+> Production and local env are configured independently here but share one
+> `GOOGLE_SHEET_ID`. Running `next dev` against a real booking will send that
+> customer's confirmation email from your personal account and take the
+> column-Q send-once lock, permanently silencing production for that booking.
+
 ## Go-live checklist
 
 1. Deploy with sandbox values; run a full booking → sandbox payment → sheet flips
