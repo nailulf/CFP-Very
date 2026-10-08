@@ -106,6 +106,20 @@ export const translations = {
 
         items: [
           {
+            quote: 'Sangat bermanfaat karena memberikan perspektif baru dalam pengelolaan keuangan.',
+            name: '',
+            role: 'Asisten Direktur - BI',
+            initials: 'A',
+            tag: 'Corporate Training',
+          },
+          {
+            quote: 'Narasumber memberikan informasi yang sangat lengkap dan terbuka. Sehingga, mampu membangun pemahaman kepada peserta bahwa perencanaan keuangan memiliki sifat yang sangat unik dan bersifat case by case (tidak dapat digeneralisasi). Peserta memahami aspek-aspek perencanaan keuangan, investasi, persiapan pensiun, dan tujuan keuangan lainnya dengan baik dan menyeluruh.',
+            name: 'Bintang Rahani',
+            role: 'Asisten Manager - BI',
+            initials: 'BR',
+            tag: 'Corporate Training',
+          },
+          {
             quote: "Meeting pertama dengan Mba Very, sangat nyaman dan merasa sangat didengarkan tanpa judgement. Sangat informatif dan ga pelit ilmu. Laporan yang didapat juga sangat detail dan beyond our expectations. Thank you Mba Very ✨",
             name: 'Rifka',
             role: 'Ibu rumah tangga',
@@ -642,6 +656,20 @@ export const translations = {
         regionLabel: 'Client testimonials',
 
         items: [
+          {
+            quote: 'It was incredibly useful \u2014 it gave me a whole new perspective on managing my finances.',
+            name: '',
+            role: 'Assistant Director - BI',
+            initials: 'A',
+            tag: 'Corporate Training',
+          },
+          {
+            quote: 'The speaker gave information that was thorough and completely open, which helped participants understand that financial planning is highly individual and case-by-case \u2014 it cannot be generalized. Participants came away with a clear, well-rounded understanding of financial planning, investing, retirement preparation, and other financial goals.',
+            name: 'Bintang Rahani',
+            role: 'Assistant Manager - BI',
+            initials: 'BR',
+            tag: 'Corporate Training',
+          },
           {
             quote: 'Our first meeting with Mba Very felt comfortable, and I really felt heard without any judgement. Very informative, and she shares what she knows freely. The report we received was detailed and beyond our expectations. Thank you Mba Very \u2728',
             name: 'Rifka',

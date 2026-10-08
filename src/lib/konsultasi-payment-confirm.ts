@@ -142,9 +142,52 @@ async function sendPaymentConfirmedEmail(
   }
 }
 
-/** Public site origin, for links inside emails sent outside a request context. */
+/**
+ * Everything a booking gets once the money is in: the Calendar event (whose
+ * Meet link rides along in the email) and then the confirmation email.
+ *
+ * Each step is contained on its own. The payment is already recorded by the
+ * time we get here, so a Calendar outage, a revoked OAuth grant or a Sheets
+ * 429 must never cost the customer their confirmation email — and a mail
+ * failure must never fail the webhook. Both were previously only true on the
+ * admin path; every trigger shares this helper now so they cannot drift again.
+ *
+ * Returns the Meet link when there is one, so status-page callers can report it.
+ */
+async function fulfillPaidBooking(
+  b: BookingDetail,
+  origin: string,
+  { force = false }: { force?: boolean } = {},
+): Promise<string | null> {
+  let meetLink: string | null = null;
+  try {
+    meetLink = await ensureCalendarEvent(b, { force });
+  } catch (error) {
+    console.error(`fulfillPaidBooking: calendar step failed for ${b.id} (payment stands)`, error);
+  }
+  try {
+    await sendPaymentConfirmedEmail(b, meetLink, origin);
+  } catch (error) {
+    console.error(`fulfillPaidBooking: email step failed for ${b.id} (payment stands)`, error);
+  }
+  return meetLink;
+}
+
+/**
+ * Public site origin, for links inside emails sent outside a request context.
+ *
+ * Same precedence as the book route, MAYAR_PUBLIC_ORIGIN included: the webhook
+ * has no incoming request to borrow an origin from, so without that fallback a
+ * deployment that sets only MAYAR_PUBLIC_ORIGIN (what docs/mayar-setup.md tells
+ * you to set in production) mails out relative, unclickable links.
+ */
 function siteOrigin(fallback?: string): string {
-  return (process.env.NEXT_PUBLIC_BASE_URL || fallback || '').replace(/\/+$/, '');
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.MAYAR_PUBLIC_ORIGIN ||
+    fallback ||
+    ''
+  ).replace(/\/+$/, '');
 }
 
 /**
@@ -156,8 +199,7 @@ export async function confirmPayment(bookingId: string): Promise<boolean> {
   const b = await getBookingById(bookingId);
   if (!b) return false;
   if (b.paymentStatus === 'paid') {
-    const meetLink = await ensureCalendarEvent(b);
-    await sendPaymentConfirmedEmail(b, meetLink, siteOrigin());
+    await fulfillPaidBooking(b, siteOrigin());
     return true;
   }
   if (!CONFIRMABLE_STATUSES.has(b.paymentStatus)) return false;
@@ -165,8 +207,7 @@ export async function confirmPayment(bookingId: string): Promise<boolean> {
   const invoice = await getInvoice(b.invoiceId);
   if (invoice.status !== 'paid') return false;
   await markPaid(bookingId, 'mayar');
-  const meetLink = await ensureCalendarEvent(b);
-  await sendPaymentConfirmedEmail(b, meetLink, siteOrigin());
+  await fulfillPaidBooking(b, siteOrigin());
   return true;
 }
 
@@ -197,14 +238,9 @@ export async function confirmPaymentManually(
     await markPaid(bookingId, MANUAL_PAYMENT_METHOD);
   }
 
-  try {
-    const meetLink = await ensureCalendarEvent(b, { force: recreateCalendarEvent });
-    await sendPaymentConfirmedEmail(b, meetLink, siteOrigin());
-  } catch (error) {
-    // The booking is paid in the sheet either way; the status page and a
-    // repeat "mark as paid" both retry fulfillment.
-    console.error(`confirmPaymentManually: fulfillment failed for ${bookingId}`, error);
-  }
+  // The booking is paid in the sheet either way; the status page and a repeat
+  // "mark as paid" both retry whichever half of fulfillment did not land.
+  await fulfillPaidBooking(b, siteOrigin(), { force: recreateCalendarEvent });
   return true;
 }
 
@@ -259,8 +295,7 @@ export async function reconcileBookingStatus(
 
   if (b.paymentStatus === 'paid') {
     // Retry the calendar event while column O is still empty.
-    const meetLink = await ensureCalendarEvent(b);
-    await sendPaymentConfirmedEmail(b, meetLink, siteOrigin(origin));
+    const meetLink = await fulfillPaidBooking(b, siteOrigin(origin));
     return { ...result('paid'), meetLink };
   }
   if (b.paymentStatus !== 'pending_payment') return result(b.paymentStatus);
@@ -320,8 +355,7 @@ export async function reconcileBookingStatus(
     const invoice = await getInvoice(b.invoiceId);
     if (invoice.status === 'paid') {
       await markPaid(bookingId, 'mayar');
-      const meetLink = await ensureCalendarEvent(b);
-      await sendPaymentConfirmedEmail(b, meetLink, siteOrigin(origin));
+      const meetLink = await fulfillPaidBooking(b, siteOrigin(origin));
       return { ...result('paid'), meetLink };
     }
     if (invoice.status === 'closed') {

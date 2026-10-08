@@ -346,6 +346,68 @@ describe('payment-confirmed email', () => {
 
     expect(sendMail).toHaveBeenCalledTimes(1);
   });
+
+  // docs/mayar-setup.md names MAYAR_PUBLIC_ORIGIN as the production public
+  // origin. The book route already falls back to it; the webhook path has no
+  // request to borrow an origin from, so without it every link in this email
+  // comes out relative ("/konsultasi/booking/status/KB-1") and dead in a mail
+  // client.
+  it('falls back to MAYAR_PUBLIC_ORIGIN when NEXT_PUBLIC_BASE_URL is unset', async () => {
+    delete process.env.NEXT_PUBLIC_BASE_URL;
+    process.env.MAYAR_PUBLIC_ORIGIN = 'https://temantumbuh.id';
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+
+    await confirmPayment('KB-1');
+
+    const sent = sendMail.mock.calls[0][0] as { text: string; html: string };
+    expect(sent.text).toContain('https://temantumbuh.id/konsultasi/booking/status/KB-1');
+    expect(sent.html).not.toContain('href="/konsultasi');
+  });
+
+  it('never emits a relative status link when no origin is configured at all', async () => {
+    delete process.env.NEXT_PUBLIC_BASE_URL;
+    delete process.env.MAYAR_PUBLIC_ORIGIN;
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+
+    await confirmPayment('KB-1');
+
+    const sent = sendMail.mock.calls[0][0] as { html: string };
+    expect(sent.html).not.toContain('href="/konsultasi');
+  });
+
+  // A Sheets write can throw (429/503) inside the calendar step. The payment is
+  // already recorded by then, so the customer must still be told — the webhook
+  // path must not lose the email the way the admin path already guards against.
+  it('still emails when the calendar step throws (sheet write failed)', async () => {
+    getBookingById.mockResolvedValue(booking());
+    getInvoice.mockResolvedValue({ id: 'inv-1', status: 'paid' });
+    setMeetLink.mockRejectedValue(new Error('Google Sheets update failed (429)'));
+
+    await confirmPayment('KB-1');
+
+    expect(markPaid).toHaveBeenCalledWith('KB-1', 'mayar');
+    expect(sendMail).toHaveBeenCalledTimes(1);
+  });
+
+  it('still emails when the calendar step throws on the status-page path', async () => {
+    getBookingById.mockResolvedValue(booking({ paymentStatus: 'paid' }));
+    setMeetLink.mockRejectedValue(new Error('Google Sheets update failed (429)'));
+
+    await reconcileBookingStatus('KB-1', 'https://temantumbuh.id');
+
+    expect(sendMail).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports paid to the status page even when the calendar step throws', async () => {
+    getBookingById.mockResolvedValue(booking({ paymentStatus: 'paid' }));
+    setMeetLink.mockRejectedValue(new Error('Google Sheets update failed (429)'));
+
+    const result = await reconcileBookingStatus('KB-1', 'https://temantumbuh.id');
+
+    expect(result?.status).toBe('paid');
+  });
 });
 
 describe('confirmPaymentManually (admin marks a booking paid)', () => {

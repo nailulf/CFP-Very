@@ -44,6 +44,15 @@ const MONTHS_ID = [
 
 const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
 
+/**
+ * The status link is only worth printing when it is absolute. A misconfigured
+ * origin yields "/konsultasi/booking/status/KB-1", which is dead in every mail
+ * client — better to drop the sentence than to ship a broken link.
+ */
+function absoluteOrNull(url: string): string | null {
+  return /^https?:\/\//.test(url) ? url : null;
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -216,6 +225,7 @@ export function bookingCreatedEmail(input: BookingCreatedInput): EmailContent {
 
 export function paymentConfirmedEmail(input: PaymentConfirmedInput): EmailContent {
   const slot = formatSlotId(input.date, input.time);
+  const statusUrl = absoluteOrNull(input.statusUrl);
   const rows = detailRows([
     { label: 'No. Referensi', value: input.bookingId },
     { label: 'Paket', value: input.service },
@@ -229,19 +239,23 @@ export function paymentConfirmedEmail(input: PaymentConfirmedInput): EmailConten
          Undangan kalender juga sudah kami kirim ke email ini — cukup klik tombol di atas saat sesi dimulai.
        </p>`
     : `<p style="margin:24px 0 0;color:${MUTED};font-size:14px;line-height:1.6;">
-         Link Google Meet sedang kami siapkan dan akan menyusul lewat undangan kalender.
+         Link Google Meet sedang kami siapkan dan akan menyusul lewat undangan kalender.${
+           statusUrl
+             ? `
          Kamu juga bisa mengeceknya kapan saja di
-         <a href="${escapeHtml(input.statusUrl)}" style="color:#205781;">halaman status booking</a>.
+         <a href="${escapeHtml(statusUrl)}" style="color:#205781;">halaman status booking</a>.`
+             : ''
+         }
        </p>`;
 
   const bodyHtml = `
     <table role="presentation" cellpadding="0" cellspacing="0">${detailTableHtml(rows)}</table>
     ${meetHtml}
     ${
-      input.meetLink
+      input.meetLink && statusUrl
         ? `<p style="margin:16px 0 0;color:${MUTED};font-size:14px;line-height:1.6;">
              Detail booking kamu ada di
-             <a href="${escapeHtml(input.statusUrl)}" style="color:#205781;">halaman status booking</a>.
+             <a href="${escapeHtml(statusUrl)}" style="color:#205781;">halaman status booking</a>.
            </p>`
         : ''
     }`;
@@ -257,7 +271,7 @@ export function paymentConfirmedEmail(input: PaymentConfirmedInput): EmailConten
       ? `Link Google Meet: ${input.meetLink}`
       : 'Link Google Meet sedang kami siapkan dan akan menyusul lewat undangan kalender.',
     '',
-    `Halaman status booking: ${input.statusUrl}`,
+    statusUrl ? `Halaman status booking: ${statusUrl}` : '',
     '',
     'Teman Tumbuh',
   ]

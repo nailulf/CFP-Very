@@ -76,7 +76,16 @@ function addMinutes(time: string, minutes: number): string {
  */
 export async function createBookingEvent(input: BookingEventInput): Promise<BookingEventResult> {
   const calendarId = process.env.GOOGLE_CALENDAR_ID;
-  if (!calendarId || !isOwnerOAuthConfigured()) return {};
+  if (!calendarId || !isOwnerOAuthConfigured()) {
+    // Say so out loud: a paid booking silently getting no invite is the kind of
+    // thing that goes unnoticed for days otherwise.
+    console.warn(
+      'createBookingEvent skipped: ' +
+        (!calendarId ? 'GOOGLE_CALENDAR_ID is unset' : 'GOOGLE_OAUTH_* is not configured') +
+        ' — no Calendar event or invite for this booking.',
+    );
+    return {};
+  }
 
   try {
     const token = await getOwnerAccessToken();
@@ -107,7 +116,15 @@ export async function createBookingEvent(input: BookingEventInput): Promise<Book
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      throw new Error(`events.insert failed (${res.status}): ${await res.text()}`);
+      // 403/404 here is a configuration mismatch, not an outage: the account
+      // behind GOOGLE_OAUTH_REFRESH_TOKEN must own (or hold write access to)
+      // GOOGLE_CALENDAR_ID. Name both, or the failure reads as a generic blip.
+      const hint =
+        res.status === 404 || res.status === 403
+          ? ` — the GOOGLE_OAUTH_REFRESH_TOKEN account cannot write to GOOGLE_CALENDAR_ID "${calendarId}";` +
+            ' they must be the same Google account (or the calendar shared with it)'
+          : '';
+      throw new Error(`events.insert failed (${res.status})${hint}: ${await res.text()}`);
     }
     const ev = (await res.json()) as {
       hangoutLink?: string;

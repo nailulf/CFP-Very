@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Claude Code local tooling (dev-server launch config)
 .claude/
+.env.local.bak-*
