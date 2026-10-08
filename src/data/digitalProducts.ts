@@ -12,6 +12,17 @@ export interface DigitalProduct {
 
 export const digitalProducts: DigitalProduct[] = [
   {
+    id: 'template-budgeting',
+    title: 'Template Budgeting',
+    description: 'Template budgeting lengkap untuk membantu kamu mengatur uang dengan lebih terstruktur tanpa terasa ribet. Dashboard otomatis merangkum income, pengeluaran, tabungan, dan sisa budget setiap bulan. Semua pos pengeluaran bisa didetailkan mulai dari kebutuhan rumah tangga, lifestyle, cicilan, sampai sinking fund. Ada Budget Tracker untuk membandingkan rencana vs aktual, Cash Flow Summary, dan indikator otomatis untuk melihat apakah pengeluaran masih on track. Cocok untuk kamu yang ingin mulai budgeting, membangun kebiasaan finansial yang lebih sehat, dan tahu ke mana uangmu pergi setiap bulan.',
+    category: 'Template',
+    fileType: 'Excel',
+    downloadUrl: 'https://clicky.id/en/bertemantumbuh/template-budgeting-temantumbuh',
+    isFree: false,
+    price: 'IDR 49000',
+    originalPrice: 'IDR 99000',
+  },
+  {
     id: 'thr-budget-2026',
     title: 'THR Budget 2026 Template',
     description: 'Plan your THR allocation with automated calculations for savings & spending.',
