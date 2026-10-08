@@ -4,6 +4,7 @@ import { KorporatHero } from '@/components/sections/korporat/KorporatHero';
 import { MengapaFinancialWellness } from '@/components/sections/korporat/MengapaFinancialWellness';
 import { TopikProgram } from '@/components/sections/korporat/TopikProgram';
 import { TopikLainnya } from '@/components/sections/korporat/TopikLainnya';
+import { KorporatTestimonials } from '@/components/sections/korporat/KorporatTestimonials';
 import { KorporatFAQ } from '@/components/sections/korporat/KorporatFAQ';
 import { KorporatFinalCTA } from '@/components/sections/korporat/KorporatFinalCTA';
 
@@ -20,6 +21,7 @@ export default function KorporatPage() {
       <MengapaFinancialWellness />
       <TopikProgram />
       <TopikLainnya />
+      <KorporatTestimonials />
       <KorporatFAQ />
       <KorporatFinalCTA />
     </main>
