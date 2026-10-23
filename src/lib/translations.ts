@@ -259,7 +259,7 @@ export const translations = {
       footnote: 'Tanpa komitmen · Tanpa tekanan · Santai saja ☕',
     },
     footer: {
-      brand: 'Bikin urusan keuangan pribadi jadi menyenangkan, ramah, dan beneran berguna. Kami bantu satu per satu. 💛',
+      brand: 'Profesional dan terpercaya Mendampingi Anda dalam mengelola keuangan secara terencana untuk mencapai tujuan finansial yang lebih terarah dan berkelanjutan.',
       columns: [
         {
           heading: 'Layanan',
@@ -282,7 +282,7 @@ export const translations = {
         },
       ],
       copyright: 'Hak cipta dilindungi.',
-      tagline: 'Dibuat dengan 🧡 dan terlalu banyak kopi',
+      tagline: 'Menghadirkan solusi finansial dengan pendekatan yang terarah dan berkelanjutan.',
     },
     konsultasi: {
       meta: {
@@ -517,6 +517,19 @@ export const translations = {
         ],
         format: 'Format penyampaian ideal: 40% materi · 30% studi kasus · 30% Q&A — bukan presentasi satu arah.',
       },
+      gallery: {
+        eyebrow: 'DOKUMENTASI',
+        title: 'Galeri Training & Webinar Kami',
+        subtitle: 'Sebagian dokumentasi dari sesi corporate training dan webinar yang pernah kami adakan.',
+        placeholderNote: 'Foto segera ditambahkan',
+        prev: 'Foto sebelumnya',
+        next: 'Foto berikutnya',
+        regionLabel: 'Galeri training & webinar',
+        items: [
+          { company: 'Bank Indonesia', session: 'Workshop & Simulasi Perencanaan Keuangan' },
+          { company: 'Bank Indonesia', session: 'Workshop & Simulasi Perencanaan Keuangan' },
+        ],
+      },
       testimonials: {
         eyebrow: 'TESTIMONI',
         title: 'Apa Kata Peserta Training Kami',
@@ -525,13 +538,13 @@ export const translations = {
           {
             quote: 'Sangat bermanfaat karena memberikan perspektif baru dalam pengelolaan keuangan.',
             name: '',
-            role: 'Asisten Direktur - BI',
+            role: 'Asisten Direktur - Bank Indonesia',
             initials: 'A',
           },
           {
             quote: 'Narasumber memberikan informasi yang sangat lengkap dan terbuka. Sehingga, mampu membangun pemahaman kepada peserta bahwa perencanaan keuangan memiliki sifat yang sangat unik dan bersifat case by case (tidak dapat digeneralisasi). Peserta memahami aspek-aspek perencanaan keuangan, investasi, persiapan pensiun, dan tujuan keuangan lainnya dengan baik dan menyeluruh.',
             name: 'Bintang Rahani',
-            role: 'Asisten Manager - BI',
+            role: 'Asisten Manager - Bank Indonesia',
             initials: 'BR',
           },
         ],
@@ -812,12 +825,12 @@ export const translations = {
       footnote: 'No commitment · No pressure · Just good vibes ☕',
     },
     footer: {
-      brand: 'Making personal finance management fun, friendly, and actually useful. One client at a time. 💛',
+      brand: 'Professional and trustworthy — supporting you in managing your finances with a clear plan, to reach more focused and sustainable financial goals.',
       columns: [
         {
           heading: 'Services',
           links: [
-            { label: 'Finance Consulation', href: '/#services' },
+            { label: 'Finance Consultation', href: '/#services' },
             { label: 'Digital Products', href: '/#services' },
             { label: 'Group Training Sessions', href: '/#services' },
             { label: 'Financial Health Check', href: '/financial-health-check' },
@@ -835,7 +848,7 @@ export const translations = {
         },
       ],
       copyright: 'All rights reserved.',
-      tagline: 'Made with 🧡 and too much coffee',
+      tagline: 'Delivering financial solutions with a focused, sustainable approach.',
     },
     konsultasi: {
       meta: {
@@ -1069,6 +1082,19 @@ export const translations = {
           },
         ],
         format: 'Ideal delivery format: 40% material · 30% case studies · 30% Q&A — not a one-way presentation.',
+      },
+      gallery: {
+        eyebrow: 'IN THE ROOM',
+        title: 'Our Training & Webinar Gallery',
+        subtitle: 'A look back at some of the corporate training sessions and webinars we have run.',
+        placeholderNote: 'Photo coming soon',
+        prev: 'Previous photo',
+        next: 'Next photo',
+        regionLabel: 'Training & webinar gallery',
+        items: [
+          { company: 'Bank Indonesia', session: 'Financial Planning Workshop & Simulation' },
+          { company: 'Bank Indonesia', session: 'Financial Planning Workshop & Simulation' },
+        ],
       },
       testimonials: {
         eyebrow: 'TESTIMONIALS',

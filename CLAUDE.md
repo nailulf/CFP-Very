@@ -349,6 +349,7 @@ in the 2026-09-19 redesign and their links now point at `/#testimoni` and
 8. **Primary fonts are Plus Jakarta Sans + IBM Plex Mono, with Source Serif 4 italic for pull quotes** — do not introduce other typefaces
 9. **Amber `#f79d35`** is the accent/CTA color — replaces the old gold `#D4A64A`
 10. **Status colors** must use the defined palette (success/warning/error/info) — no ad-hoc reds or greens
+11. **Keep the design system streamlined**: reuse existing colors, components, and patterns before adding new ones. Do not introduce new tints, variants, or one-off styles just because a screen "needs" something slightly different — adapt an existing token/component first and only add new ones when the user explicitly asks
 
 ---
 

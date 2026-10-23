@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
-import { Heart, Award, SlidersHorizontal, Lightbulb } from 'lucide-react';
-import { Container } from '@/components/ui/Container';
+import { Heart, Award, SlidersHorizontal, Lightbulb, ArrowRight } from 'lucide-react';
 import { useLang } from '@/lib/lang-context';
 import { translations } from '@/lib/translations';
 import { KORPORAT_WA } from './waLink';
@@ -12,33 +11,39 @@ export const KorporatHero: React.FC = () => {
   const { lang } = useLang();
   const t = translations[lang].korporat.hero;
   return (
-    <section className="bg-[#F0F7FA] pt-32 pb-16">
-      <Container>
+    <section className="bg-page-bg pt-32 lg:pt-36 pb-16 lg:pb-20">
+      <div className="mx-auto w-full max-w-screen-xl px-5 sm:px-10 lg:px-20">
         <div className="max-w-3xl">
-          <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-[#205781] uppercase mb-4">{t.eyebrow}</p>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-[#1A1918] tracking-[-1px] leading-[1.1] mb-5">{t.title}</h1>
-          <p className="text-lg text-[#666666] leading-relaxed mb-8">{t.subtitle}</p>
+          <p className="font-mono text-[11px] font-bold tracking-[1.5px] text-primary uppercase mb-4">{t.eyebrow}</p>
+          <h1 className="text-[33px] sm:text-[40px] lg:text-[46px] font-extrabold leading-[1.1] tracking-[-1.3px] text-navy mb-5">
+            {t.title}
+          </h1>
+          <p className="text-[17px] leading-[1.65] text-muted max-w-[60ch] mb-8">{t.subtitle}</p>
           <a
             href={KORPORAT_WA}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center rounded-full bg-[#f79d35] px-7 py-3.5 font-semibold text-white shadow-[0_8px_20px_rgba(247,157,53,0.35)]"
+            className="inline-flex items-center justify-center gap-2.5 h-[52px] px-7 rounded-full bg-navy text-white text-[15px] font-semibold shadow-[0_8px_22px_rgba(21,58,86,0.24)] transition-transform hover:-translate-y-0.5"
           >
             {t.cta}
+            <ArrowRight size={16} />
           </a>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
           {t.badges.map((badge, i) => {
             const Icon = ICONS[i];
             return (
-              <div key={badge} className="bg-white rounded-2xl border border-[#E0EBF5] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-5 flex items-start gap-3">
-                <Icon className="w-6 h-6 text-[#4F9DA6] shrink-0" />
-                <p className="font-semibold text-[15px] text-[#1A1918] leading-snug">{badge}</p>
+              <div
+                key={badge}
+                className="bg-white rounded-[24px] shadow-[0_1px_2px_rgba(21,58,86,0.04),0_8px_24px_rgba(21,58,86,0.05)] p-5 flex items-start gap-3 transition-[transform,box-shadow] hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(21,58,86,0.04),0_18px_44px_rgba(21,58,86,0.09)]"
+              >
+                <Icon className="w-6 h-6 text-teal shrink-0" />
+                <p className="font-semibold text-[15px] text-dark leading-snug">{badge}</p>
               </div>
             );
           })}
         </div>
-      </Container>
+      </div>
     </section>
   );
 };
